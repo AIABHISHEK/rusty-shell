@@ -1,9 +1,8 @@
+use crate::builtins;
 #[allow(unused_imports)]
 use std::io::{self, Write};
 
 pub fn run() {
-
-    // Wait for user input
     let stdin = io::stdin();
     loop {
         print!("$ ");
@@ -13,23 +12,14 @@ pub fn run() {
 
         let input = input.trim();
         let commandInput: Vec<&str> = input.splitn(2, ' ').collect();
-
-
-        // println!("{}", commandInput[1]);
         let cmd = commandInput.get(0);
-        // println!("{}", cmd.unwrap());
         match cmd {
             Some(&"exit") => continue,
             Some(&"echo") => {
-                print!("hhh");
-                if commandInput.len() > 1 {
-                    println!("{}", commandInput[1]);
-                }
+                    builtins::echo_cmd(commandInput.get(1).map(|v| *v));
             }
             Some(&"type") => {
-                if commandInput.len() > 1 {
-                    println!("{}", commandInput[1]);
-                }
+                builtins::type_cmd(commandInput.get(1).map(|v| *v));
             }
             Some(cmd) => {
                 println!("{}: command not found", cmd);
