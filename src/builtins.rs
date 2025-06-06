@@ -19,7 +19,10 @@ pub fn type_cmd(args: Option<&str>) {
             }
             else {
                 match v[0] {
-                    "exit" | "echo" | "type" => println!("{} is a shell builtin", v[0]),
+                    "exit" | "echo" | "type" => {
+                        println!("{} is a shell builtin", v[0]);
+                        return;
+                    },
                     _ => {},
                 }
                 if let Ok(path_var) = env::var("PATH") {
