@@ -14,7 +14,14 @@ pub fn run() {
         let commandInput: Vec<&str> = input.splitn(2, ' ').collect();
         let cmd = commandInput.get(0);
         match cmd {
-            Some(&"exit") => continue,
+            Some(&"exit") => {
+                if commandInput.len() > 1 && *commandInput.get(1).unwrap() != "0"{
+                    println!("invalid argument for exit")
+                }
+                else {
+                    return;
+                }
+            },
             Some(&"echo") => {
                     builtins::echo_cmd(commandInput.get(1).map(|v| *v));
             }
