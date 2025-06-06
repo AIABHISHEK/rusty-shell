@@ -10,7 +10,6 @@ pub fn type_cmd(args: Option<&str>) {
     match args {
         Some(text) => {
             let v: Vec<&str> = text.split_ascii_whitespace().collect();
-            // if v.l
             if v.len() > 1 {
                 println!("Too  many arguments");
             }
