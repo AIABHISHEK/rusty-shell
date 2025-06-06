@@ -16,8 +16,8 @@ pub fn type_cmd(args: Option<&str>) {
             }
             else {
                 match v[0] {
-                    "exit" | "echo" | "type" => println!("{} is builtin type", v[0]),
-                    _ => println!("invalid type {}", v[0]),
+                    "exit" | "echo" | "type" => println!("{} is a shell builtin", v[0]),
+                    _ => println!("{}: not found", v[0]),
                 }
             }
         }
