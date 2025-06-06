@@ -25,8 +25,8 @@ pub fn type_cmd(args: Option<&str>) {
                 if let Ok(path_var) = env::var("PATH") {
                     for dir in path_var.split(':') {
                         let full_path = path::Path::new(dir).join(v[0]);
-                        println!("this is full path: {:?}", full_path);
-                        println!("this is: {dir}");
+                        // println!("this is full path: {:?}", full_path);
+                        // println!("this is: {dir}");
                         if full_path.exists() && full_path.is_file() {
                             println!("{} is {}", v[0], full_path.display());
                             return;
