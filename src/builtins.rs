@@ -11,9 +11,9 @@ pub fn echo_cmd(args: Option<&str>) {
 
 pub fn existing_command(commandInput: Vec<&str>) {
     let cmd = commandInput.get(0).map(|v| *v);
-    let l = commandInput.len() as i32;
+    let l = commandInput.len();
     // let args: Vec<&str> = Vec::from(commandInput[1..l]);
-    println!("Program was passed {} args (including program name).", l);
+    println!("Program was passed {} args (including program name).", l as i32);
     println!("Arg #0 (program name): {}", commandInput[0]);
     for (indx,value) in commandInput[1..l].iter().enumerate() {
         println!("Arg #{}: {}", indx+1, value);
