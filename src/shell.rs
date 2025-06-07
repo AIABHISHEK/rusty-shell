@@ -36,30 +36,8 @@ pub fn run() {
             // }
             _ => {
                 // println!("this is unknown");
-                // builtins::existing_command(commandInput);
-                let parts: Vec<&str> = input.trim().split_whitespace().collect();
-                if parts.is_empty() {
-                    return;
-                }
-
-                let command = parts[0];
-                let args = &parts[1..];
-                let path = std::env::var("PATH").unwrap_or_default();
-                let paths = path.split(':');
-                for path in paths {
-                    let full_path = format!("{}/{}", path, command);
-                    if std::fs::metadata(&full_path).is_ok() {
-                        let mut process = std::process::Command::new(command)
-                            .args(args)
-                            .spawn()
-                            .unwrap();
-                        // wait for the command to finish
-                        let _status = process.wait().unwrap();
-                        return;
-                    }
-                }
-                // If command is not found print an error message
-                println!("{}: command not found", command);
+                builtins::existing_command(commandInput);
+                
             }
         }
     }
