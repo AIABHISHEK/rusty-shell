@@ -35,7 +35,6 @@ pub fn run() {
             //     return;
             // }
             _ => {
-                // println!("this is unknown");
                 builtins::existing_command(commandInput);
                 
             }
