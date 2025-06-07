@@ -17,10 +17,10 @@ pub fn existing_command(commandInput: Vec<&str>) {
     match command {
         Some(text) => {
             // println!("Program was passed {} args (including program name).", l);
-            println!("Arg #0 (program name): {}", commandInput[0]);
-            for (indx, value) in commandInput[1..l].iter().enumerate() {
-                println!("Arg #{}: {}", indx + 1, value);
-            }
+            // println!("Arg #0 (program name): {}", commandInput[0]);
+            // for (indx, value) in commandInput[1..l].iter().enumerate() {
+            //     println!("Arg #{}: {}", indx + 1, value);
+            // }
             // let v: Vec<&str> = text.split_ascii_whitespace().collect();
             // println!("{} and {}", text, v[0]);
             if let Ok(path_var) = env::var("PATH") {
