@@ -18,6 +18,7 @@ pub fn existing_command(commandInput: Vec<&str>) {
     for (indx,value) in commandInput[1..l].iter().enumerate() {
         println!("Arg #{}: {}", indx+1, value);
     }
+    let mut match_found = false;
     match cmd {
         Some(text) => {
             // let v: Vec<&str> = text.split_ascii_whitespace().collect();
@@ -37,13 +38,17 @@ pub fn existing_command(commandInput: Vec<&str>) {
                         // println!("Stdout: {}", String::from_utf8_lossy(&output.stdout.take().unwrap()));
                         // println!("Stderr: {}", String::from_utf8_lossy(&output.stderr.take().unwrap()));
                         let _status = output.wait().unwrap();
+                        match_found = true;
                         // return;
                         // println!("{} is {}", v[0], full_path.display());
-                        return;
+                        // return;
                     }
                 }
             }
-            println!("{}: not found", text)
+            if match_found == false {
+                println!("{}: not found", text)
+            }
+            return;
             // }
         }
         _ => {}
