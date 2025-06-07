@@ -30,7 +30,7 @@ pub fn existing_command(commandInput: Vec<&str>) {
                     // println!("this is: {dir}");
                     if full_path.exists() && full_path.is_file() {
                         // execute command
-                        let mut output = process::Command::new(&full_path)
+                        let mut output = process::Command::new(text)
                             // .output()
                             .args(&commandInput[1..l])
                             .spawn()
