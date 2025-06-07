@@ -13,44 +13,38 @@ pub fn existing_command(commandInput: Vec<&str>) {
     let cmd = commandInput.get(0).map(|v| *v);
     let l = commandInput.len();
     // let args: Vec<&str> = Vec::from(commandInput[1..l]);
-    println!("Program was passed {} args (including program name).", l as i32);
+    println!("Program was passed {} args (including program name).", l);
     println!("Arg #0 (program name): {}", commandInput[0]);
     for (indx,value) in commandInput[1..l].iter().enumerate() {
         println!("Arg #{}: {}", indx+1, value);
     }
-    let mut match_found = false;
     match cmd {
         Some(text) => {
-            // let v: Vec<&str> = text.split_ascii_whitespace().collect();
+            let v: Vec<&str> = text.split_ascii_whitespace().collect();
+            println!("{} and {}", text, v[0]);
             if let Ok(path_var) = env::var("PATH") {
                 for dir in path_var.split(':') {
                     let full_path = path::Path::new(dir).join(text);
                     // println!("this is full path: {:?}", full_path);
                     // println!("this is: {dir}");
-                    if full_path.exists() {
+                    if full_path.exists() && full_path.is_file() {
                         // execute command
-                        let mut output = process::Command::new(text)
+                        let mut output = process::Command::new(&full_path)
                             // .output()
                             .args(&commandInput[1..l])
                             .spawn()
-                            .expect("command did not executed")
-                        .wait();
+                            .expect("command did not executed");
 
                         // println!("Stdout: {}", String::from_utf8_lossy(&output.stdout.take().unwrap()));
                         // println!("Stderr: {}", String::from_utf8_lossy(&output.stderr.take().unwrap()));
-                        // let _status = output.wait().unwrap();
-                        match_found = true;
+                        let _status = output.wait().unwrap();
                         // return;
                         // println!("{} is {}", v[0], full_path.display());
-                        // return;
-                        break;
+                        return;
                     }
                 }
             }
-            if match_found == false {
-                println!("{}: not found", text)
-            }
-            return;
+            println!("{}: not found", v[0])
             // }
         }
         _ => {}
