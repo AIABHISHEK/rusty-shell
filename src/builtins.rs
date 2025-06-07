@@ -16,7 +16,7 @@ pub fn existing_command(commandInput: Vec<&str>) {
     println!("Program was passed {} args (including program name).", l);
     println!("Arg #0 (program name): {}", commandInput[0]);
     for (indx,value) in commandInput[1..l].iter().enumerate() {
-        println!("Arg #{} : {}", indx+1, value);
+        println!("Arg #{}: {}", indx+1, value);
     }
     match cmd {
         Some(text) => {
