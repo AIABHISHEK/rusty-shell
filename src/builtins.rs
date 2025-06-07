@@ -20,10 +20,10 @@ pub fn existing_command(commandInput: Vec<&str>) {
     }
     match cmd {
         Some(text) => {
-            let v: Vec<&str> = text.split_ascii_whitespace().collect();
+            // let v: Vec<&str> = text.split_ascii_whitespace().collect();
             if let Ok(path_var) = env::var("PATH") {
-                for dir in path_var.split(';') {
-                    let full_path = path::Path::new(dir).join(v[0]);
+                for dir in path_var.split(':') {
+                    let full_path = path::Path::new(dir).join(text);
                     // println!("this is full path: {:?}", full_path);
                     // println!("this is: {dir}");
                     if full_path.exists() {
@@ -43,7 +43,7 @@ pub fn existing_command(commandInput: Vec<&str>) {
                     }
                 }
             }
-            println!("{}: not found", v[0])
+            println!("{}: not found", text)
             // }
         }
         _ => {}
@@ -65,7 +65,7 @@ pub fn type_cmd(args: Option<&str>) {
                     _ => {}
                 }
                 if let Ok(path_var) = env::var("PATH") {
-                    for dir in path_var.split(';') {
+                    for dir in path_var.split(':') {
                         let full_path = path::Path::new(dir).join(v[0]);
                         // println!("this is full path: {:?}", full_path);
                         // println!("this is: {dir}");
