@@ -1,12 +1,52 @@
-use std::fmt::format;
-use std::fs;
 use std::env;
 use std::path;
+use std::process;
 
 pub fn echo_cmd(args: Option<&str>) {
     match args {
         Some(text) => println!("{text}"),
         None => (),
+    }
+}
+
+pub fn existing_command(commandInput: Vec<&str>) {
+    let cmd = commandInput.get(0).map(|v| *v);
+    let l = commandInput.len();
+    // let args: Vec<&str> = Vec::from(commandInput[1..l]);
+    println!("Program was passed {} args (including program name).", l);
+    println!("Arg #0 (program name): {}", commandInput[0]);
+    for (indx,value) in commandInput[1..l].iter().enumerate() {
+        println!("Arg #{} (program name): {}", indx+1, value);
+    }
+    match cmd {
+        Some(text) => {
+            let v: Vec<&str> = text.split_ascii_whitespace().collect();
+            if let Ok(path_var) = env::var("PATH") {
+                for dir in path_var.split(';') {
+                    let full_path = path::Path::new(dir).join(v[0]);
+                    // println!("this is full path: {:?}", full_path);
+                    // println!("this is: {dir}");
+                    if full_path.exists() && full_path.is_file() {
+                        // execute command
+                        let mut output = process::Command::new(&full_path)
+                            // .output()
+                            .args(&commandInput[1..l])
+                            .spawn()
+                            .expect("command did not executed");
+
+                        // println!("Stdout: {}", String::from_utf8_lossy(&output.stdout.take().unwrap()));
+                        // println!("Stderr: {}", String::from_utf8_lossy(&output.stderr.take().unwrap()));
+                        let _status = output.wait().unwrap();
+                        // return;
+                        // println!("{} is {}", v[0], full_path.display());
+                        return;
+                    }
+                }
+            }
+            println!("{}: not found", v[0])
+            // }
+        }
+        _ => {}
     }
 }
 
@@ -16,21 +56,22 @@ pub fn type_cmd(args: Option<&str>) {
             let v: Vec<&str> = text.split_ascii_whitespace().collect();
             if v.len() > 1 {
                 println!("Too  many arguments");
-            }
-            else {
+            } else {
                 match v[0] {
                     "exit" | "echo" | "type" => {
                         println!("{} is a shell builtin", v[0]);
                         return;
-                    },
-                    _ => {},
+                    }
+                    _ => {}
                 }
                 if let Ok(path_var) = env::var("PATH") {
-                    for dir in path_var.split(':') {
+                    for dir in path_var.split(';') {
                         let full_path = path::Path::new(dir).join(v[0]);
                         // println!("this is full path: {:?}", full_path);
                         // println!("this is: {dir}");
                         if full_path.exists() && full_path.is_file() {
+                            // execute command
+
                             println!("{} is {}", v[0], full_path.display());
                             return;
                         }
@@ -39,8 +80,6 @@ pub fn type_cmd(args: Option<&str>) {
                 println!("{}: not found", v[0])
             }
         }
-        _ => {
-            
-        },
+        _ => {}
     }
 }

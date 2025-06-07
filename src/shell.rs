@@ -30,7 +30,8 @@ pub fn run() {
                 builtins::type_cmd(commandInput.get(1).map(|v| *v));
             }
             Some(cmd) => {
-                println!("{}: command not found", cmd);
+                // println!("{}: command not found", cmd);
+                builtins::existing_command(commandInput);
             }
             None => println!("Enter a command"),
             // _ => {}
