@@ -26,7 +26,7 @@ pub fn existing_command(commandInput: Vec<&str>) {
                     let full_path = path::Path::new(dir).join(v[0]);
                     // println!("this is full path: {:?}", full_path);
                     // println!("this is: {dir}");
-                    if full_path.exists() && full_path.is_file() {
+                    if full_path.exists() {
                         // execute command
                         let mut output = process::Command::new(&full_path)
                             // .output()
