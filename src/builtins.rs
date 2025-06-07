@@ -13,13 +13,14 @@ pub fn existing_command(commandInput: Vec<&str>) {
     let cmd = commandInput.get(0).map(|v| *v);
     let l = commandInput.len();
     // let args: Vec<&str> = Vec::from(commandInput[1..l]);
-    println!("Program was passed {} args (including program name).", l);
-    println!("Arg #0 (program name): {}", commandInput[0]);
-    for (indx,value) in commandInput[1..l].iter().enumerate() {
-        println!("Arg #{}: {}", indx+1, value);
-    }
+
     match cmd {
         Some(text) => {
+            println!("Program was passed {} args (including program name).", l);
+            println!("Arg #0 (program name): {}", commandInput[0]);
+            for (indx, value) in commandInput[1..l].iter().enumerate() {
+                println!("Arg #{}: {}", indx + 1, value);
+            }
             let v: Vec<&str> = text.split_ascii_whitespace().collect();
             println!("{} and {}", text, v[0]);
             if let Ok(path_var) = env::var("PATH") {
