@@ -21,8 +21,8 @@ pub fn existing_command(commandInput: Vec<&str>) {
             for (indx, value) in commandInput[1..l].iter().enumerate() {
                 println!("Arg #{}: {}", indx + 1, value);
             }
-            let v: Vec<&str> = text.split_ascii_whitespace().collect();
-            println!("{} and {}", text, v[0]);
+            // let v: Vec<&str> = text.split_ascii_whitespace().collect();
+            // println!("{} and {}", text, v[0]);
             if let Ok(path_var) = env::var("PATH") {
                 for dir in path_var.split(':') {
                     let full_path = path::Path::new(dir).join(text);
@@ -45,7 +45,7 @@ pub fn existing_command(commandInput: Vec<&str>) {
                     }
                 }
             }
-            println!("{}: not found", v[0])
+            println!("{}: not found", text);
             // }
         }
         _ => {}
