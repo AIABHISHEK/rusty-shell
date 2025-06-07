@@ -14,7 +14,7 @@ pub fn existing_command(commandInput: Vec<&str>) {
     let l = commandInput.len();
     // let args: Vec<&str> = Vec::from(commandInput[1..l]);
     println!("Program was passed {} args (including program name).", l);
-    println!("Arg #0 : {}", commandInput[0]);
+    println!("Arg #0 (program name): {}", commandInput[0]);
     for (indx,value) in commandInput[1..l].iter().enumerate() {
         println!("Arg #{} : {}", indx+1, value);
     }
