@@ -41,7 +41,7 @@ pub fn existing_command(commandInput: Vec<&str>) {
                         let _status = output.wait().unwrap();
                         // return;
                         // println!("{} is {}", v[0], full_path.display());
-                        // return;
+                        return;
                     }
                 }
             }
