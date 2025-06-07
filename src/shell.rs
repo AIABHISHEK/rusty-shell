@@ -1,4 +1,3 @@
-
 use crate::builtins;
 #[allow(unused_imports)]
 use std::io::{self, Write};
@@ -12,19 +11,21 @@ pub fn run() {
         stdin.read_line(&mut input).unwrap();
 
         let input = input.trim();
+        if input.is_empty() {
+            continue;
+        }
         let commandInput: Vec<&str> = input.splitn(2, ' ').collect();
         let cmd = commandInput.get(0);
         match cmd {
             Some(&"exit") => {
-                if commandInput.len() > 1 && *commandInput.get(1).unwrap() != "0"{
+                if commandInput.len() > 1 && *commandInput.get(1).unwrap() != "0" {
                     println!("invalid argument for exit")
-                }
-                else {
+                } else {
                     return;
                 }
-            },
+            }
             Some(&"echo") => {
-                    builtins::echo_cmd(commandInput.get(1).map(|v| *v));
+                builtins::echo_cmd(commandInput.get(1).map(|v| *v));
             }
             Some(&"type") => {
                 builtins::type_cmd(commandInput.get(1).map(|v| *v));
