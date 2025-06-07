@@ -33,11 +33,12 @@ pub fn existing_command(commandInput: Vec<&str>) {
                             // .output()
                             .args(&commandInput[1..l])
                             .spawn()
-                            .expect("command did not executed");
+                            .expect("command did not executed")
+                        .wait();
 
                         // println!("Stdout: {}", String::from_utf8_lossy(&output.stdout.take().unwrap()));
                         // println!("Stderr: {}", String::from_utf8_lossy(&output.stderr.take().unwrap()));
-                        let _status = output.wait().unwrap();
+                        // let _status = output.wait().unwrap();
                         match_found = true;
                         // return;
                         // println!("{} is {}", v[0], full_path.display());
