@@ -22,7 +22,7 @@ pub fn cd_cmd(args: Option<&str>) {
     match args {
         Some(dir) => {
             match env::set_current_dir(dir.trim()){
-                Err(result) => println!("cd: {}: No such file or directory,  {}", dir.trim(), result),
+                Err(result) => println!("cd: {}: No such file or directory", dir.trim()),
                 Ok(r)=>{},
             }
         },
