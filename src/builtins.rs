@@ -9,25 +9,29 @@ pub fn echo_cmd(args: Option<&str>) {
     }
 }
 
-pub fn pwd_cmd(){
+pub fn pwd_cmd() {
     if let Ok(dir) = env::current_dir() {
         println!("{}", dir.display());
-    }
-    else {
+    } else {
         print!("failed to execute pwd command");
     }
 }
 
 pub fn cd_cmd(args: Option<&str>) {
     match args {
-        Some(dir) => {
-            match env::set_current_dir(dir.trim()){
-                Err(result) => println!("cd: {}: No such file or directory", dir.trim()),
-                Ok(r)=>{},
-            }
+        Some(dir) => match env::set_current_dir(dir.trim()) {
+            Err(result) => println!("cd: {}: No such file or directory", dir.trim()),
+            Ok(r) => {}
         },
-        None=>{}
+        None => {}
     }
+}
+
+pub fn tilde_cmd() {
+    let home = env::var("HOME")
+        .or_else(|_| env::var("USERPROFILE"))
+        .unwrap_or_else(|_| String::from("/"));
+    let _ = env::set_current_dir(home);
 }
 
 pub fn existing_command(commandInput: Vec<&str>) {

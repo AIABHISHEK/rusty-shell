@@ -36,6 +36,9 @@ pub fn run() {
             Some(&"cd") => {
                 builtins::cd_cmd(commandInput.get(1).map(|v| *v));
             }
+            Some(&"~") => {
+                builtins::tilde_cmd();
+            }
             // Some(cmd) => {
             //     // println!("{}: command not found", cmd);
             //     return;
