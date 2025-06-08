@@ -19,6 +19,7 @@ pub fn pwd_cmd() {
 
 pub fn cd_cmd(args: Option<&str>) {
     match args {
+        Some("~") => tilde_cmd(),
         Some(dir) => match env::set_current_dir(dir.trim()) {
             Err(result) => println!("cd: {}: No such file or directory", dir.trim()),
             Ok(r) => {}
@@ -27,7 +28,7 @@ pub fn cd_cmd(args: Option<&str>) {
     }
 }
 
-pub fn tilde_cmd() {
+fn tilde_cmd() {
     let home = env::var("HOME")
         .or_else(|_| env::var("USERPROFILE"))
         .unwrap_or_else(|_| String::from("/"));
