@@ -18,6 +18,18 @@ pub fn pwd_cmd(){
     }
 }
 
+pub fn cd_cmd(args: Option<&str>) {
+    match args {
+        Some(dir) => {
+            match env::set_current_dir(dir.trim()){
+                Err(result) => println!("cd: {}: No such file or directory,  {}", dir.trim(), result),
+                Ok(r)=>{},
+            }
+        },
+        None=>{}
+    }
+}
+
 pub fn existing_command(commandInput: Vec<&str>) {
     let command = commandInput.get(0).map(|v| *v);
     let l = commandInput.len();
@@ -53,7 +65,7 @@ pub fn type_cmd(args: Option<&str>) {
                 println!("Too  many arguments");
             } else {
                 match v[0] {
-                    "exit" | "echo" | "type" | "pwd" => {
+                    "exit" | "echo" | "type" | "pwd" | "cd" => {
                         println!("{} is a shell builtin", v[0]);
                         return;
                     }
