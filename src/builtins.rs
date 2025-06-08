@@ -9,6 +9,15 @@ pub fn echo_cmd(args: Option<&str>) {
     }
 }
 
+pub fn pwd_cmd(){
+    if let Ok(dir) = env::current_dir() {
+        println!("{}", dir.display());
+    }
+    else {
+        print!("failed to execute pwd command");
+    }
+}
+
 pub fn existing_command(commandInput: Vec<&str>) {
     let command = commandInput.get(0).map(|v| *v);
     let l = commandInput.len();
@@ -44,7 +53,7 @@ pub fn type_cmd(args: Option<&str>) {
                 println!("Too  many arguments");
             } else {
                 match v[0] {
-                    "exit" | "echo" | "type" => {
+                    "exit" | "echo" | "type" | "pwd" => {
                         println!("{} is a shell builtin", v[0]);
                         return;
                     }

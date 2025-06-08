@@ -30,6 +30,9 @@ pub fn run() {
             Some(&"type") => {
                 builtins::type_cmd(commandInput.get(1).map(|v| *v));
             }
+            Some(&"pwd") => {
+                builtins::pwd_cmd();
+            }
             // Some(cmd) => {
             //     // println!("{}: command not found", cmd);
             //     return;
