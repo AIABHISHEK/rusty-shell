@@ -3,10 +3,52 @@ use std::path;
 use std::process;
 
 pub fn echo_cmd(args: Option<&str>) {
+    // println!("{}", args.unwrap());
     match args {
-        Some(text) => println!("{text}"),
+        Some(text) => {
+            let v = parse_command_line(text);
+            for i in v {
+                println!("{}", i);
+            }
+        }
         None => (),
     }
+}
+
+fn parse_command_line(input: &str) -> Vec<String> {
+    let mut parts = Vec::new();
+    let mut current_part = String::new();
+    let mut in_single_quotes = false;
+    let mut chars = input.trim().chars().peekable();
+
+    while let Some(ch) = chars.next() {
+        match ch {
+            '\'' => {
+                in_single_quotes = !in_single_quotes;
+            }
+            ' ' if !in_single_quotes => {
+                if !current_part.is_empty() {
+                    parts.push(current_part.clone());
+                    current_part.clear();
+                }
+                while let Some(&next_ch) = chars.peek() {
+                    if next_ch == ' ' {
+                        chars.next();
+                    } else {
+                        break;
+                    }
+                }
+            }
+            _ => {
+                current_part.push(ch);
+            }
+        }
+    }
+    if !current_part.is_empty() {
+        parts.push(current_part);
+    }
+
+    parts
 }
 
 pub fn pwd_cmd() {
