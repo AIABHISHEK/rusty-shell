@@ -7,7 +7,7 @@ pub fn echo_cmd(args: Option<&str>) {
     match args {
         Some(text) => {
             let v = parse_command_line(text);
-                println!("{}", v.join(" "));
+            println!("{}", v.join(" "));
         }
         None => (),
     }
