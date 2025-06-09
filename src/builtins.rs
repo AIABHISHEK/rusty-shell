@@ -8,8 +8,9 @@ pub fn echo_cmd(args: Option<&str>) {
         Some(text) => {
             let v = parse_command_line(text);
             for i in v {
-                println!("{}", i);
+                print!("{} ", i);
             }
+            // println!()
         }
         None => (),
     }
