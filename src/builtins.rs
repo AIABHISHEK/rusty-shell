@@ -92,6 +92,7 @@ pub fn existing_command(commandInput: Vec<&str>) {
                             .args(&commandInput[1..l])
                             .spawn()
                             .expect("command did not executed");
+                        print!("wdad");
                         let _status = output.wait().unwrap();
                         return;
                     }
