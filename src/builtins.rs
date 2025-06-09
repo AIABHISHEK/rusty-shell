@@ -59,6 +59,7 @@ pub fn pwd_cmd() {
 }
 
 pub fn cd_cmd(args: Option<&str>) {
+    print!("inside cd");
     match args {
         Some("~") => tilde_cmd(),
         Some(dir) => match env::set_current_dir(dir.trim()) {
