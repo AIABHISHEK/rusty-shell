@@ -19,6 +19,7 @@ fn parse_command_line(input: &str) -> Vec<String> {
     let mut in_single_quotes = false;
     let mut in_double_quotes = false;
     let mut chars = input.trim().chars().peekable();
+    let mut prev_escape = false;
 
     while let Some(ch) = chars.next() {
         match ch {
@@ -27,6 +28,10 @@ fn parse_command_line(input: &str) -> Vec<String> {
             }
             '"' if !in_single_quotes => {
                 in_double_quotes = !in_double_quotes;
+            }
+            '\\' if !in_single_quotes && !in_double_quotes && !prev_escape => {
+                prev_escape = true;
+                continue;
             }
             ' ' | '\t' if !in_single_quotes && !in_double_quotes => {
                 if !current_part.is_empty() {
@@ -46,6 +51,7 @@ fn parse_command_line(input: &str) -> Vec<String> {
                 current_part.push(ch);
             }
         }
+        prev_escape = if prev_escape { !prev_escape } else { prev_escape };
     }
     if !current_part.is_empty() {
         parts.push(current_part);
