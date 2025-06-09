@@ -33,6 +33,10 @@ fn parse_command_line(input: &str) -> Vec<String> {
                 chars.next().map(|c| current_part.push(c));
                 continue;
             }
+            '\\' if in_double_quotes => {
+                chars.next().map(|c| current_part.push(c));
+                continue;
+            }
             ' ' | '\t' if !in_single_quotes && !in_double_quotes => {
                 if !current_part.is_empty() {
                     parts.push(current_part.clone());
