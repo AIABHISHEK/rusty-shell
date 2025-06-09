@@ -21,7 +21,7 @@ fn parse_command_line(input: &str) -> Vec<String> {
 
     while let Some(ch) = chars.next() {
         match ch {
-            '\'' => {
+            '\"' => {
                 in_single_quotes = !in_single_quotes;
             }
             ' ' | '\t' if !in_single_quotes => {
