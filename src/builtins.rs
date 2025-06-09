@@ -88,7 +88,7 @@ pub fn existing_command(commandInput: Vec<&str>) {
     match command {
         Some(text) => {
             if let Ok(path_var) = env::var("PATH") {
-                for dir in path_var.split(';') {
+                for dir in path_var.split(':') {
                     let full_path = path::Path::new(dir).join(text);
                     if full_path.exists() {
                         // execute command
