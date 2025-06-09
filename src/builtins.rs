@@ -59,7 +59,6 @@ pub fn pwd_cmd() {
 }
 
 pub fn cd_cmd(args: Option<&str>) {
-    print!("inside cd");
     match args {
         Some("~") => tilde_cmd(),
         Some(dir) => match env::set_current_dir(dir.trim()) {
@@ -78,8 +77,10 @@ fn tilde_cmd() {
 }
 
 pub fn existing_command(commandInput: Vec<&str>) {
+
     let command = commandInput.get(0).map(|v| *v);
     let l = commandInput.len();
+    let args = parse_command_line(commandInput[1..l].join(" ").as_str());
     match command {
         Some(text) => {
             if let Ok(path_var) = env::var("PATH") {
@@ -87,13 +88,13 @@ pub fn existing_command(commandInput: Vec<&str>) {
                     let full_path = path::Path::new(dir).join(text);
                     if full_path.exists() {
                         // execute command
-                        println!("{text}");
+                        // println!("{text}");
                         let mut output = process::Command::new(text)
                             // .output()
-                            .args(&commandInput[1..l])
+                            .args(args)
                             .spawn()
                             .expect("command did not executed");
-                        print!("wdad");
+                        // print!("wdad");
                         let _status = output.wait().unwrap();
                         return;
                     }
