@@ -1,4 +1,3 @@
-use std::env;
 mod shell;
 mod builtins;
 

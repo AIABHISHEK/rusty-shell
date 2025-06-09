@@ -17,14 +17,18 @@ fn parse_command_line(input: &str) -> Vec<String> {
     let mut parts = Vec::new();
     let mut current_part = String::new();
     let mut in_single_quotes = false;
+    let mut in_double_quotes = false;
     let mut chars = input.trim().chars().peekable();
 
     while let Some(ch) = chars.next() {
         match ch {
-            '\"' => {
+            '\'' if !in_double_quotes => {
                 in_single_quotes = !in_single_quotes;
             }
-            ' ' | '\t' if !in_single_quotes => {
+            '"' if !in_single_quotes => {
+                in_double_quotes = !in_double_quotes;
+            }
+            ' ' | '\t' if !in_single_quotes && !in_double_quotes => {
                 if !current_part.is_empty() {
                     parts.push(current_part.clone());
                     current_part.clear();
@@ -84,7 +88,7 @@ pub fn existing_command(commandInput: Vec<&str>) {
     match command {
         Some(text) => {
             if let Ok(path_var) = env::var("PATH") {
-                for dir in path_var.split(':') {
+                for dir in path_var.split(';') {
                     let full_path = path::Path::new(dir).join(text);
                     if full_path.exists() {
                         // execute command
