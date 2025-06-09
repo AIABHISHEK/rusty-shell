@@ -34,7 +34,17 @@ fn parse_command_line(input: &str) -> Vec<String> {
                 continue;
             }
             '\\' if in_double_quotes => {
-                chars.next().map(|c| current_part.push(c));
+                if let Some(&next_ch) = chars.peek() {
+                    match next_ch {
+                        '"' | '\\' | '$' | '`' => {
+                            chars.next().map(|c| current_part.push(c));
+                        }
+                        _ => {
+                            // For any other character, keep the backslash
+                            current_part.push('\\');
+                        }
+                    }
+                }
                 continue;
             }
             ' ' | '\t' if !in_single_quotes && !in_double_quotes => {
@@ -42,7 +52,6 @@ fn parse_command_line(input: &str) -> Vec<String> {
                     parts.push(current_part.clone());
                     current_part.clear();
                 }
-                // Skip additional whitespace
                 while let Some(&next_ch) = chars.peek() {
                     if next_ch == ' ' || next_ch == '\t' {
                         chars.next();
