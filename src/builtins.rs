@@ -87,6 +87,7 @@ pub fn existing_command(commandInput: Vec<&str>) {
                     let full_path = path::Path::new(dir).join(text);
                     if full_path.exists() {
                         // execute command
+                        println!("{text}");
                         let mut output = process::Command::new(text)
                             // .output()
                             .args(&commandInput[1..l])
