@@ -7,10 +7,7 @@ pub fn echo_cmd(args: Option<&str>) {
     match args {
         Some(text) => {
             let v = parse_command_line(text);
-            for i in v {
-                print!("{} ", i);
-            }
-            // println!()
+                println!("{}", v.join(" "));
         }
         None => (),
     }
@@ -27,13 +24,14 @@ fn parse_command_line(input: &str) -> Vec<String> {
             '\'' => {
                 in_single_quotes = !in_single_quotes;
             }
-            ' ' if !in_single_quotes => {
+            ' ' | '\t' if !in_single_quotes => {
                 if !current_part.is_empty() {
                     parts.push(current_part.clone());
                     current_part.clear();
                 }
+                // Skip additional whitespace
                 while let Some(&next_ch) = chars.peek() {
-                    if next_ch == ' ' {
+                    if next_ch == ' ' || next_ch == '\t' {
                         chars.next();
                     } else {
                         break;
