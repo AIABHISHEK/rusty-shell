@@ -15,7 +15,7 @@ pub fn run() {
         if input.is_empty() {
             continue;
         }
-        let v = builtins::parse_command_line(&input);
+        let v = builtins::parse_command_line(input);
         // for val in v {
         //     println!("{val}");
         // }

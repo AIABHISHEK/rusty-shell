@@ -5,8 +5,8 @@ use std::process;
 pub fn echo_cmd(args: &Vec<String>) {
     match args.get(0) {
         Some(text) => {
-            let v = parse_command_line(text);
-            println!("{}", v.join(" "));
+            // let v = parse_command_line(text);
+            println!("{}", text);
         }
         None => (),
     }
@@ -30,7 +30,7 @@ pub fn parse_command_line(input: &str) -> Vec<String> {
             }
             '\\' if !in_single_quotes && !in_double_quotes => {
                 chars.next().map(|c| current_part.push(c));
-                continue;
+                // continue;
             }
             '\\' if in_double_quotes => {
                 if let Some(&next_ch) = chars.peek() {
@@ -44,7 +44,7 @@ pub fn parse_command_line(input: &str) -> Vec<String> {
                         }
                     }
                 }
-                continue;
+                // continue;
             }
             ' ' | '\t' if !in_single_quotes && !in_double_quotes => {
                 if !current_part.is_empty() {
