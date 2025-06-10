@@ -3,13 +3,7 @@ use std::path;
 use std::process;
 
 pub fn echo_cmd(args: &Vec<String>) {
-    match args.get(0) {
-        Some(text) => {
-            // let v = parse_command_line(text);
-            println!("{}", text);
-        }
-        None => (),
-    }
+        println!("{}", args.join(" "));
 }
 
 pub fn parse_command_line(input: &str) -> Vec<String> {
