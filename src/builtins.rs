@@ -2,9 +2,8 @@ use std::env;
 use std::path;
 use std::process;
 
-pub fn echo_cmd(args: Option<&str>) {
-    // println!("{}", args.unwrap());
-    match args {
+pub fn echo_cmd(args: &Vec<String>) {
+    match args.get(0) {
         Some(text) => {
             let v = parse_command_line(text);
             println!("{}", v.join(" "));
@@ -13,7 +12,7 @@ pub fn echo_cmd(args: Option<&str>) {
     }
 }
 
-fn parse_command_line(input: &str) -> Vec<String> {
+pub fn parse_command_line(input: &str) -> Vec<String> {
     let mut parts = Vec::new();
     let mut current_part = String::new();
     let mut in_single_quotes = false;
@@ -80,8 +79,8 @@ pub fn pwd_cmd() {
     }
 }
 
-pub fn cd_cmd(args: Option<&str>) {
-    match args {
+pub fn cd_cmd(args: &Vec<String>) {
+    match args.get(0).map(|c| c.as_str()) {
         Some("~") => tilde_cmd(),
         Some(dir) => match env::set_current_dir(dir.trim()) {
             Err(result) => println!("cd: {}: No such file or directory", dir.trim()),
@@ -98,39 +97,30 @@ fn tilde_cmd() {
     let _ = env::set_current_dir(home);
 }
 
-pub fn existing_command(commandInput: Vec<&str>) {
-
-    let command = commandInput.get(0).map(|v| *v);
-    let l = commandInput.len();
-    let args = parse_command_line(commandInput[1..l].join(" ").as_str());
-    match command {
-        Some(text) => {
+pub fn existing_command(command: &str, args: &Vec<String>) {
             if let Ok(path_var) = env::var("PATH") {
                 for dir in path_var.split(':') {
-                    let full_path = path::Path::new(dir).join(text);
+                    let full_path = path::Path::new(dir).join(command);
                     if full_path.exists() {
-                        // execute command
-                        // println!("{text}");
-                        let mut output = process::Command::new(text)
+                        let mut output = process::Command::new(command)
                             // .output()
                             .args(args)
                             .spawn()
                             .expect("command did not executed");
-                        // print!("wdad");
                         let _status = output.wait().unwrap();
                         return;
                     }
                 }
             }
-            println!("{}: not found", text);
+            println!("{}: not found", command);
             // }
-        }
-        _ => {}
-    }
+        // }
+        // _ => {}
+    // }
 }
 
-pub fn type_cmd(args: Option<&str>) {
-    match args {
+pub fn type_cmd(args: &Vec<String>) {
+    match args.get(0) {
         Some(text) => {
             let v: Vec<&str> = text.split_ascii_whitespace().collect();
             if v.len() > 1 {

@@ -1,4 +1,5 @@
 use crate::builtins;
+use std::clone;
 #[allow(unused_imports)]
 use std::io::{self, Write};
 
@@ -14,36 +15,40 @@ pub fn run() {
         if input.is_empty() {
             continue;
         }
-        let commandInput: Vec<&str> = input.splitn(2, ' ').collect();
-        let cmd = commandInput.get(0);
+        let v = builtins::parse_command_line(&input);
+        // for val in v {
+        //     println!("{val}");
+        // }
+
+        // let commandInput: Vec<&str> = input.splitn(2, ' ').collect();
+        let c = &v[0];
+        let cmd = c.as_str();
+        let args = &v[1..].iter().map(|s| s.clone()).collect();
         match cmd {
-            Some(&"exit") => {
-                if commandInput.len() > 1 && *commandInput.get(1).unwrap() != "0" {
+            "exit" => {
+                if v.len() > 1 && v.get(1).unwrap() != "0" {
                     println!("invalid argument for exit")
                 } else {
                     return;
                 }
             }
-            Some(&"echo") => {
-                builtins::echo_cmd(commandInput.get(1).map(|v| *v));
+            "echo" => {
+                // builtins::echo_cmd(commandInput.get(1).map(|v| *v));
+                builtins::echo_cmd(args);
             }
-            Some(&"type") => {
-                builtins::type_cmd(commandInput.get(1).map(|v| *v));
+            "type" => {
+                builtins::type_cmd(args);
             }
-            Some(&"pwd") => {
+            "pwd" => {
                 builtins::pwd_cmd();
             }
-            Some(&"cd") => {
-                builtins::cd_cmd(commandInput.get(1).map(|v| *v));
+            "cd" => {
+                builtins::cd_cmd(args);
             }
-            // Some(cmd) => {
-            //     // println!("{}: command not found", cmd);
-            //     return;
-            // }
-            _ => {
-                builtins::existing_command(commandInput);
-                
-            }
+            command => {
+                // println!("{}: command not found", cmd);
+                builtins::existing_command(command, args);
+            } // _ => {}
         }
     }
 }
