@@ -64,7 +64,7 @@ pub fn existing_command(command: &str, args: &Vec<String>, output_: &mut String)
                 //     let file = args[args.len() - 1].clone();
                 //     write_to_file(s, file);
                 // }
-                print!("output {}", String::from_utf8_lossy(out.as_slice()));
+                // print!("output {}", String::from_utf8_lossy(out.as_slice()));
                 // Optionally print stderr
                 // eprint!("{}", String::from_utf8_lossy(stderr));
                 return;
