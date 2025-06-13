@@ -38,7 +38,7 @@ pub fn run() {
             }
             "echo" => {
                 // builtins::echo_cmd(commandInput.get(1).map(|v| *v));
-                builtins::echo_cmd(args, &mut output_);
+                builtins::echo_cmd(args, &mut output_, &redirect);
             }
             "type" => {
                 builtins::type_cmd(args);

@@ -7,8 +7,10 @@ use std::path::Path;
 use std::process;
 use std::process::Output;
 
-pub fn echo_cmd(args: &Vec<String>, output_: &mut String) {
-    println!("{}", args.join(" "));
+pub fn echo_cmd(args: &Vec<String>, output_: &mut String, redirect: &bool) {
+    if !*redirect {
+        println!("{}", args.join(" "));
+    }
     *output_ = args.join(" ");
 }
 
