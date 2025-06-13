@@ -56,9 +56,14 @@ pub fn run() {
         }
         match file {
             Some(f) => {
-                builtins::write_to_file(output_, f);
+                let trimmed = output_.trim_end_matches('\n').to_string();
+                builtins::write_to_file(format!("{}\n", trimmed), f);
             },
-            None => println!("{output_}"),
+            None => {
+                if !output_.is_empty() {
+                    println!("{output_}")
+                }
+            },
         }
     }
 }
