@@ -57,11 +57,13 @@ pub fn run() {
         match file {
             Some(f) => {
                 let trimmed = output_.trim_end_matches('\n').to_string();
-                builtins::write_to_file(format!("{}\n", trimmed), f);
+                if !output_.is_empty() {
+                    builtins::write_to_file(trimmed, f);
+                }
             },
             None => {
                 if !output_.is_empty() {
-                    println!("{output_}")
+                    println!("{:?}", output_)
                 }
             },
         }

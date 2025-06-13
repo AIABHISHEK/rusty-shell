@@ -1,7 +1,9 @@
 use std::env;
 use std::fs;
+use std::fs::read_to_string;
 use std::io::Write;
 use std::path;
+use std::path::Path;
 use std::process;
 use std::process::Output;
 
@@ -40,7 +42,7 @@ pub fn existing_command(command: &str, args: &Vec<String>, output_: &mut String)
     // check if have > or 1> in last second index then output should be
     // let exist = write_to_file_arg_exist(args);
     if let Ok(path_var) = env::var("PATH") {
-        for dir in path_var.split(':') {
+        for dir in path_var.split(';') {
             let full_path = path::Path::new(dir).join(command);
             let mut cmd_args: &Vec<String> = args;
             let mut sliced_args: Vec<String> = Vec::new();
@@ -143,13 +145,26 @@ pub fn type_cmd(args: &Vec<String>) {
 // }
 
 pub fn write_to_file(content: String, file: String) {
+
+    let path = Path::new(&file);
+    let mut to_write = content.trim_end_matches('\n').to_string();
+
+    // If file exists and is not empty and does not end with '\n', add a newline before writing
+    if path.exists() {
+        if let Ok(existing) = read_to_string(&file) {
+            if !existing.is_empty() {
+                to_write = format!("\n{}", to_write);
+            }
+        }
+    }
+
     match fs::OpenOptions::new()
         .create(true) 
         .append(true) 
         .open(&file)
     {
         Ok(mut f) => {
-            if let Err(e) = f.write_all(content.as_bytes()) {
+            if let Err(e) = f.write_all(to_write.as_bytes()) {
                 eprintln!("failed to write: {}", e);
             }
         }
