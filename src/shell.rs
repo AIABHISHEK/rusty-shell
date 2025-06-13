@@ -63,7 +63,7 @@ pub fn run() {
             },
             None => {
                 if !output_.is_empty() {
-                    println!("{:?}", output_)
+                    println!("{}", output_)
                 }
             },
         }
