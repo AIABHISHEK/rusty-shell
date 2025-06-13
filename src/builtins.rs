@@ -1,71 +1,16 @@
 use std::env;
+use std::fs;
+use std::io::Write;
 use std::path;
 use std::process;
+use std::process::Output;
 
-pub fn echo_cmd(args: &Vec<String>) {
-        println!("{}", args.join(" "));
+pub fn echo_cmd(args: &Vec<String>, output_: &mut String) {
+    println!("{}", args.join(" "));
+    *output_ = args.join(" ");
 }
 
-pub fn parse_command_line(input: &str) -> Vec<String> {
-    let mut parts = Vec::new();
-    let mut current_part = String::new();
-    let mut in_single_quotes = false;
-    let mut in_double_quotes = false;
-    let mut chars = input.trim().chars().peekable();
-
-
-    while let Some(ch) = chars.next() {
-        match ch {
-            '\'' if !in_double_quotes => {
-                in_single_quotes = !in_single_quotes;
-            }
-            '"' if !in_single_quotes => {
-                in_double_quotes = !in_double_quotes;
-            }
-            '\\' if !in_single_quotes && !in_double_quotes => {
-                chars.next().map(|c| current_part.push(c));
-                // continue;
-            }
-            '\\' if in_double_quotes => {
-                if let Some(&next_ch) = chars.peek() {
-                    match next_ch {
-                        '"' | '\\' | '$' | '`' => {
-                            chars.next().map(|c| current_part.push(c));
-                        }
-                        _ => {
-                            // For any other character, keep the backslash
-                            current_part.push('\\');
-                        }
-                    }
-                }
-                // continue;
-            }
-            ' ' | '\t' if !in_single_quotes && !in_double_quotes => {
-                if !current_part.is_empty() {
-                    parts.push(current_part.clone());
-                    current_part.clear();
-                }
-                while let Some(&next_ch) = chars.peek() {
-                    if next_ch == ' ' || next_ch == '\t' {
-                        chars.next();
-                    } else {
-                        break;
-                    }
-                }
-            }
-            _ => {
-                current_part.push(ch);
-            }
-        }
-    }
-    if !current_part.is_empty() {
-        parts.push(current_part);
-    }
-
-    parts
-}
-
-pub fn pwd_cmd() {
+pub fn pwd_cmd(output_: &mut String) {
     if let Ok(dir) = env::current_dir() {
         println!("{}", dir.display());
     } else {
@@ -73,7 +18,7 @@ pub fn pwd_cmd() {
     }
 }
 
-pub fn cd_cmd(args: &Vec<String>) {
+pub fn cd_cmd(args: &Vec<String>, output_: &mut String) {
     match args.get(0).map(|c| c.as_str()) {
         Some("~") => tilde_cmd(),
         Some(dir) => match env::set_current_dir(dir.trim()) {
@@ -91,25 +36,45 @@ fn tilde_cmd() {
     let _ = env::set_current_dir(home);
 }
 
-pub fn existing_command(command: &str, args: &Vec<String>) {
-            if let Ok(path_var) = env::var("PATH") {
-                for dir in path_var.split(':') {
-                    let full_path = path::Path::new(dir).join(command);
-                    if full_path.exists() {
-                        let mut output = process::Command::new(command)
-                            // .output()
-                            .args(args)
-                            .spawn()
-                            .expect("command did not executed");
-                        let _status = output.wait().unwrap();
-                        return;
-                    }
-                }
-            }
-            println!("{}: not found", command);
+pub fn existing_command(command: &str, args: &Vec<String>, output_: &mut String) {
+    // check if have > or 1> in last second index then output should be
+    // let exist = write_to_file_arg_exist(args);
+    if let Ok(path_var) = env::var("PATH") {
+        for dir in path_var.split(';') {
+            let full_path = path::Path::new(dir).join(command);
+            let mut cmd_args: &Vec<String> = args;
+            let mut sliced_args: Vec<String> = Vec::new();
+            // if exist {
+            //     sliced_args = args[0..(args.len() - 2)].to_vec();
+            //     cmd_args = &sliced_args;
             // }
-        // }
-        // _ => {}
+            if full_path.exists() {
+                let output = process::Command::new(command)
+                    .args(cmd_args)
+                    .output()
+                    // .spawn()
+                    .expect("command did not executed");
+                let out = &output.stdout;
+                // let err = &output.stderr;
+                // stdout().write_all(&output.stdout);
+                // if exist {
+                    let s = String::from_utf8_lossy(out.as_slice());
+                    let s = s.to_string();
+                    *output_ = s;
+                //     let file = args[args.len() - 1].clone();
+                //     write_to_file(s, file);
+                // }
+                print!("output {}", String::from_utf8_lossy(out.as_slice()));
+                // Optionally print stderr
+                // eprint!("{}", String::from_utf8_lossy(stderr));
+                return;
+            }
+        }
+    }
+    println!("{}: not found", command);
+    // }
+    // }
+    // _ => {}
     // }
 }
 
@@ -144,5 +109,52 @@ pub fn type_cmd(args: &Vec<String>) {
             }
         }
         _ => {}
+    }
+}
+
+// fn write_to_file_exist(args: &Vec<String>) -> bool {
+//     let mut exist = false;
+//     let idx = args.len() - 2;
+//     let val = &args[idx];
+//     // if args.len() < 2 as usize {
+//     //     return exist;
+//     // }
+//     if *val == ">".to_string() || *val == "1>".to_string() {
+//         if idx != (args.len() - 2) {
+//             print!("Invalid argument after {val}")
+//         } else {
+//             exist = true;
+//         }
+//     }
+//     return exist;
+// }
+
+// fn write_to_std_output(args: &Vec<String>) -> bool {
+//     let mut exist = false;
+//     let idx = args.len() - 1;
+//     let val = &args[idx];
+//     // if args.len() < 2 as usize {
+//     //     return exist;
+//     // }
+//     if *val == ">".to_string() || *val == "1>".to_string() {
+//         exist = true;
+//     }
+//     return exist;
+// }
+
+pub fn write_to_file(content: String, file: String) {
+    match fs::OpenOptions::new()
+        .create(true) 
+        .append(true) 
+        .open(&file)
+    {
+        Ok(mut f) => {
+            if let Err(e) = f.write_all(content.as_bytes()) {
+                eprintln!("failed to write: {}", e);
+            }
+        }
+        Err(e) => {
+            eprintln!("failed to open {}: {}", &file, e);
+        }
     }
 }

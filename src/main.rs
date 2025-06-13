@@ -1,6 +1,6 @@
 mod shell;
 mod builtins;
-
+mod util;
 fn main() {
     // for argument in env::args() {
     //     println!("{argument}");
