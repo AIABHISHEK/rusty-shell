@@ -40,7 +40,7 @@ pub fn existing_command(command: &str, args: &Vec<String>, output_: &mut String)
     // check if have > or 1> in last second index then output should be
     // let exist = write_to_file_arg_exist(args);
     if let Ok(path_var) = env::var("PATH") {
-        for dir in path_var.split(';') {
+        for dir in path_var.split(':') {
             let full_path = path::Path::new(dir).join(command);
             let mut cmd_args: &Vec<String> = args;
             let mut sliced_args: Vec<String> = Vec::new();
