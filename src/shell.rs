@@ -62,7 +62,8 @@ pub fn run() {
                 }
             },
             None => {
-                if !output_.is_empty() {
+                let trimmed = output_.trim_end_matches('\n').to_string();
+                if !trimmed.is_empty() {
                     println!("{}", output_)
                 }
             },
