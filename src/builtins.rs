@@ -73,7 +73,7 @@ pub fn existing_command(command: &str, args: &Vec<String>, output_: &mut String,
                     let s = String::from_utf8_lossy(&output.stderr.as_slice());
                     let s = s.to_string();
                     
-                    println!("{}", s);
+                    // println!("{}", s);
                     *output_ = s;
                     *redirect = false;
                 }
