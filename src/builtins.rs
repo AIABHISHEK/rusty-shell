@@ -8,9 +8,9 @@ use std::process;
 use std::process::Output;
 
 pub fn echo_cmd(args: &Vec<String>, output_: &mut Vec<String>, redirect: &bool) {
-    if !*redirect {
-        println!("{}", args.join(" "));
-    }
+    // if !*redirect {
+    //     println!("{}", args.join(" "));
+    // }
     output_.push(args.join(" "));
 }
 
