@@ -7,14 +7,14 @@ use std::path::Path;
 use std::process;
 use std::process::Output;
 
-pub fn echo_cmd(args: &Vec<String>, output_: &mut String, redirect: &bool) {
+pub fn echo_cmd(args: &Vec<String>, output_: &mut Vec<String>, redirect: &bool) {
     if !*redirect {
         println!("{}", args.join(" "));
     }
-    *output_ = args.join(" ");
+    output_.push(args.join(" "));
 }
 
-pub fn pwd_cmd(output_: &mut String) {
+pub fn pwd_cmd(output_: &mut Vec<String>) {
     if let Ok(dir) = env::current_dir() {
         println!("{}", dir.display());
     } else {
@@ -22,7 +22,7 @@ pub fn pwd_cmd(output_: &mut String) {
     }
 }
 
-pub fn cd_cmd(args: &Vec<String>, output_: &mut String) {
+pub fn cd_cmd(args: &Vec<String>, output_: &mut Vec<String>) {
     match args.get(0).map(|c| c.as_str()) {
         Some("~") => tilde_cmd(),
         Some(dir) => match env::set_current_dir(dir.trim()) {
@@ -40,12 +40,13 @@ fn tilde_cmd() {
     let _ = env::set_current_dir(home);
 }
 
-pub fn existing_command(command: &str, args: &Vec<String>, output_: &mut String, redirect: &mut bool) {
+pub fn existing_command(command: &str, args: &Vec<String>, output_: &mut Vec<String>, err_: &mut String, redirect: &mut bool) {
     // check if have > or 1> in last second index then output should be
     // let exist = write_to_file_arg_exist(args);
     if let Ok(path_var) = env::var("PATH") {
-        for dir in path_var.split(':') {
-            let full_path = path::Path::new(dir).join(command);
+        for dir in env::split_paths(&path_var) {
+            let full_path = dir.join(command);
+            // print!("path : {}", full_path.display());
             let mut cmd_args: &Vec<String> = args;
             let mut sliced_args: Vec<String> = Vec::new();
             // if exist {
@@ -61,23 +62,29 @@ pub fn existing_command(command: &str, args: &Vec<String>, output_: &mut String,
                 // let err = &output.stderr;
                 // stdout().write_all(&output.stdout);
                 // if exist {
-                    if output.status.success() {
+                
+                    // if output.status.success() {
                     let out = &output.stdout;
 
-                    let s = String::from_utf8_lossy(out.as_slice());
-                    let s = s.to_string();
-                    *output_ = s;
-                    *redirect = true;
-                }
-                else {
-                    let s = String::from_utf8_lossy(&output.stderr.as_slice());
-                    let s = s.to_string();
+                    let so = String::from_utf8_lossy(out.as_slice());
+                    let so = so.to_string();
+                    println!("so {}", so);
+                    // if output_.len() > 0 {
+                        // output_.push(format!("\n{}", so));
+                    // }
+                    // else {
+                        output_.push(so);
+                    // }
+                    // *redirect = true;
+                // }
+                // else {
+                    let se = String::from_utf8_lossy(&output.stderr.as_slice());
+                    let se = se.to_string();
                     
                     // println!("{}", s);
-                    *output_ = s;
+                    *err_ = se;
                     // print!("{}")
-                    *redirect = false;
-                }
+                // }
                 //     let file = args[args.len() - 1].clone();
                 //     write_to_file(s, file);
                 // }

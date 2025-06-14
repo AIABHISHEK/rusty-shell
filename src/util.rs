@@ -55,6 +55,7 @@ pub fn parse_command_line(input: &str, redirect: &mut bool, file:&mut Option<Str
     let n = parts.len();
     if n >= 1 && (parts[n - 1] == ">" || parts[n - 1] == "1>") {
         parts.truncate(n-1);
+        // *redirect = true;
         return parts;
     }
     if n >= 2 && (parts[n - 2] == ">" || parts[n - 2] == "1>") {

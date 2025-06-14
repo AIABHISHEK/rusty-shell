@@ -10,8 +10,8 @@ pub fn run() {
         io::stdout().flush().unwrap();
         let mut input = String::new();
         stdin.read_line(&mut input).unwrap();
-        let mut output_ = String::new();
-        // let mut err_ = String::new();
+        let mut output_: Vec<String> = Vec::new();
+        let mut err_ = String::new();
         let mut redirect = false;
         let mut file: Option<String> = None;
 
@@ -51,29 +51,47 @@ pub fn run() {
             }
             command => {
                 // println!("{}: command not found", cmd);
-                builtins::existing_command(command, args, &mut output_, &mut redirect);
+                builtins::existing_command(command, args, &mut output_, &mut err_, &mut redirect);
             } // _ => {}
         }
         match file {
             Some(f) => {
-                if redirect {
-                    let trimmed = output_.trim_end_matches('\n').to_string();
+                // if redirect {
+                // println!("inside {}", output_.len());
                     if !output_.is_empty() {
-                        builtins::write_to_file(trimmed, f);
+                        let st = output_.join("");
+                        // println!("test  {}", st);
+                        let trimmed = st.trim_end_matches('\n').to_string();
+                        if !trimmed.is_empty() {
+                            builtins::write_to_file(trimmed, f);
+                        }
                     }
-                } else {
-                    let trimmed = output_.trim_end_matches('\n').to_string();
+                // } else {
+                //     if !output_.is_empty() {
+                //         let st = output_.join("");
+                //         println!("test  {}", st);
+                //         let trimmed = st.trim_end_matches('\n').to_string();
+                //         if !trimmed.is_empty() {
+                //             println!("{}", trimmed)
+                //         }
+                //     }
+                // }
+            }
+            None => {
+                // else {
+                    let st = output_.join("");
+                    // println!("console  {}", st);
+                    let trimmed = st.trim_end_matches('\n').to_string();
                     if !trimmed.is_empty() {
                         println!("{}", trimmed)
                     }
-                }
-            }
-            None => {
-                let trimmed = output_.trim_end_matches('\n').to_string();
-                if !trimmed.is_empty() {
-                    println!("{}", trimmed)
-                }
+                // }
             }
         }
+        if !err_.trim_end_matches('\n').is_empty() {
+            let trimmed = err_.trim_end_matches('\n').to_string();
+            println!("{trimmed}")
+        }
+        
     }
 }
