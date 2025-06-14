@@ -64,14 +64,14 @@ pub fn run() {
                 } else {
                     let trimmed = output_.trim_end_matches('\n').to_string();
                     if !trimmed.is_empty() {
-                        print!("{}", output_)
+                        println!("{}", trimmed)
                     }
                 }
             }
             None => {
                 let trimmed = output_.trim_end_matches('\n').to_string();
                 if !trimmed.is_empty() {
-                    print!("{}", output_)
+                    println!("{}", trimmed)
                 }
             }
         }
