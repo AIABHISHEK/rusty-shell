@@ -51,7 +51,7 @@ pub fn run() {
             }
             command => {
                 // println!("{}: command not found", cmd);
-                builtins::existing_command(command, args, &mut output_);
+                builtins::existing_command(command, args, &mut output_, &mut redirect);
             } // _ => {}
         }
         match file {

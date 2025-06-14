@@ -40,7 +40,7 @@ fn tilde_cmd() {
     let _ = env::set_current_dir(home);
 }
 
-pub fn existing_command(command: &str, args: &Vec<String>, output_: &mut String) {
+pub fn existing_command(command: &str, args: &Vec<String>, output_: &mut String, redirect: &mut bool) {
     // check if have > or 1> in last second index then output should be
     // let exist = write_to_file_arg_exist(args);
     if let Ok(path_var) = env::var("PATH") {
@@ -58,13 +58,23 @@ pub fn existing_command(command: &str, args: &Vec<String>, output_: &mut String)
                     .output()
                     // .spawn()
                     .expect("command did not executed");
-                let out = &output.stdout;
                 // let err = &output.stderr;
                 // stdout().write_all(&output.stdout);
                 // if exist {
+                    if output.status.success() {
+                    let out = &output.stdout;
+
                     let s = String::from_utf8_lossy(out.as_slice());
                     let s = s.to_string();
                     *output_ = s;
+                    *redirect = true;
+                }
+                else {
+                    let s = String::from_utf8_lossy(&output.stderr.as_slice());
+                    let s = s.to_string();
+                    *output_ = s;
+                    *redirect = false;
+                }
                 //     let file = args[args.len() - 1].clone();
                 //     write_to_file(s, file);
                 // }
