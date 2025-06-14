@@ -68,7 +68,7 @@ pub fn existing_command(command: &str, args: &Vec<String>, output_: &mut Vec<Str
 
                     let so = String::from_utf8_lossy(out.as_slice());
                     let so = so.to_string();
-                    println!("so {}", so);
+                    // println!("so {}", so);
                     // if output_.len() > 0 {
                         // output_.push(format!("\n{}", so));
                     // }
