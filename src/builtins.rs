@@ -75,6 +75,7 @@ pub fn existing_command(command: &str, args: &Vec<String>, output_: &mut String,
                     
                     // println!("{}", s);
                     *output_ = s;
+                    // print!("{}")
                     *redirect = false;
                 }
                 //     let file = args[args.len() - 1].clone();

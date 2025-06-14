@@ -56,17 +56,24 @@ pub fn run() {
         }
         match file {
             Some(f) => {
-                let trimmed = output_.trim_end_matches('\n').to_string();
-                if !output_.is_empty() {
-                    builtins::write_to_file(trimmed, f);
+                if redirect {
+                    let trimmed = output_.trim_end_matches('\n').to_string();
+                    if !output_.is_empty() {
+                        builtins::write_to_file(trimmed, f);
+                    }
+                } else {
+                    let trimmed = output_.trim_end_matches('\n').to_string();
+                    if !trimmed.is_empty() {
+                        println!("{}", output_)
+                    }
                 }
-            },
+            }
             None => {
                 let trimmed = output_.trim_end_matches('\n').to_string();
                 if !trimmed.is_empty() {
                     println!("{}", output_)
                 }
-            },
+            }
         }
     }
 }
