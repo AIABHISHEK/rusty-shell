@@ -94,17 +94,46 @@ pub fn run() {
                     println!("{trimmed}")
                 }
             }
-            RedirectType::StdErrToFile => match file {
-                Some(f) => {
-                    let trimmed = err_.trim_end_matches('\n').to_string();
-                    // println!("{trimmed}");
-                    // if !trimmed.is_empty() {
-                    builtins::write_to_file(trimmed, f);
-                    // }
+            RedirectType::StdErrToFile => {
+                let st = output_.join("");
+                let trimmed = st.trim_end_matches('\n').to_string();
+                if !trimmed.is_empty() {
+                    println!("{}", trimmed)
                 }
-                _ => {}
-            },
-            RedirectType::StdOutToFile => {}
+                match file {
+                    Some(f) => {
+                        let trimmed = err_.trim_end_matches('\n').to_string();
+                        // println!("{trimmed}");
+                        // if !trimmed.is_empty() {
+                        builtins::write_to_file(trimmed, f);
+                        // }
+                    }
+                    _ => {}
+                }
+            }
+            RedirectType::StdOutToFile => {
+                match file {
+                    Some(f) => {
+                        // if redirect {
+                        // println!("inside {}", output_.len());
+                        if !output_.is_empty() {
+                            let st = output_.join("");
+                            // println!("test  {}", st);
+                            let trimmed = st.trim_end_matches('\n').to_string();
+                            if !trimmed.is_empty() {
+                                builtins::write_to_file(trimmed, f);
+                            }
+                        }
+                    }
+                    None => {
+                        let st = output_.join("");
+                        let trimmed = st.trim_end_matches('\n').to_string();
+                        if !trimmed.is_empty() {
+                            println!("{}", trimmed)
+                        }
+                    }
+                }
+            }
         }
         // if !err_.trim_end_matches('\n').is_empty() {
         //     let trimmed = err_.trim_end_matches('\n').to_string();
