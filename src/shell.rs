@@ -112,6 +112,10 @@ pub fn run() {
                 }
             }
             RedirectType::StdOutToFile => {
+                if !err_.trim_end_matches('\n').is_empty() {
+                    let trimmed = err_.trim_end_matches('\n').to_string();
+                    println!("{trimmed}")
+                }
                 match file {
                     Some(f) => {
                         // if redirect {
