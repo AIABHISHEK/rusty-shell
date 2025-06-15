@@ -98,9 +98,9 @@ pub fn run() {
                 Some(f) => {
                     let trimmed = err_.trim_end_matches('\n').to_string();
                     // println!("{trimmed}");
-                    if !trimmed.is_empty() {
-                        builtins::write_to_file(trimmed, f);
-                    }
+                    // if !trimmed.is_empty() {
+                    builtins::write_to_file(trimmed, f);
+                    // }
                 }
                 _ => {}
             },
