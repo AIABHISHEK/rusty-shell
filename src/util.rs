@@ -89,7 +89,7 @@ pub fn parse_command_line(input: &str, redirect: &mut RedirectType, file:&mut Op
     }
 
     if n >= 2 && parts[n - 2] == "2>>" {
-        *redirect = RedirectType::AppendStdOutToFile;
+        *redirect = RedirectType::AppendStdErrToFile;
         *file = Some(parts[n - 1].clone());
         parts.truncate(n - 2);
         return parts;
