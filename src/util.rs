@@ -60,7 +60,7 @@ pub fn parse_command_line(input: &str, redirect: &mut RedirectType, file:&mut Op
         return parts;
     }
     if n >= 2 && (parts[n - 2] == ">" || parts[n - 2] == "1>") {
-        *redirect = RedirectType::StdErrToFile;
+        *redirect = RedirectType::StdOutToFile;
         *file = Some(parts[n - 1].clone());
         parts.truncate(n - 2);
         return parts;
