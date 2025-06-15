@@ -167,7 +167,7 @@ pub fn type_cmd(args: &Vec<String>) {
 //     return exist;
 // }
 
-pub fn write_to_file(content: String, file: String) {
+pub fn write_to_file(content: String, file: String, append: bool) {
 
     let path = Path::new(&file);
     let mut to_write = content.trim_end_matches('\n').to_string();
@@ -183,7 +183,9 @@ pub fn write_to_file(content: String, file: String) {
 
     match fs::OpenOptions::new()
         .create(true) 
-        .append(true) 
+        .write(true)
+        .truncate(!append) 
+        .append(append)
         .open(&file)
     {
         Ok(mut f) => {

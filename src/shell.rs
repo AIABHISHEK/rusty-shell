@@ -7,6 +7,7 @@ pub enum RedirectType {
     None,
     StdOutToFile,
     StdErrToFile,
+    AppendStdOutToFile,
 }
 
 pub fn run() {
@@ -105,7 +106,7 @@ pub fn run() {
                         let trimmed = err_.trim_end_matches('\n').to_string();
                         // println!("{trimmed}");
                         // if !trimmed.is_empty() {
-                        builtins::write_to_file(trimmed, f);
+                        builtins::write_to_file(trimmed, f, false);
                         // }
                     }
                     _ => {}
@@ -125,7 +126,34 @@ pub fn run() {
                             // println!("test  {}", st);
                             let trimmed = st.trim_end_matches('\n').to_string();
                             if !trimmed.is_empty() {
-                                builtins::write_to_file(trimmed, f);
+                                builtins::write_to_file(trimmed, f, false);
+                            }
+                        }
+                    }
+                    None => {
+                        let st = output_.join("");
+                        let trimmed = st.trim_end_matches('\n').to_string();
+                        if !trimmed.is_empty() {
+                            println!("{}", trimmed)
+                        }
+                    }
+                }
+            }
+            RedirectType::AppendStdOutToFile => {
+                if !err_.trim_end_matches('\n').is_empty() {
+                    let trimmed = err_.trim_end_matches('\n').to_string();
+                    println!("{trimmed}")
+                }
+                match file {
+                    Some(f) => {
+                        // if redirect {
+                        // println!("inside {}", output_.len());
+                        if !output_.is_empty() {
+                            let st = output_.join("");
+                            // println!("test  {}", st);
+                            let trimmed = st.trim_end_matches('\n').to_string();
+                            if !trimmed.is_empty() {
+                                builtins::write_to_file(trimmed, f, true);
                             }
                         }
                     }
