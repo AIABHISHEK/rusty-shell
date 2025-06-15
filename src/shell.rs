@@ -8,6 +8,7 @@ pub enum RedirectType {
     StdOutToFile,
     StdErrToFile,
     AppendStdOutToFile,
+    AppendStdErrToFile,
 }
 
 pub fn run() {
@@ -146,8 +147,6 @@ pub fn run() {
                 }
                 match file {
                     Some(f) => {
-                        // if redirect {
-                        // println!("inside {}", output_.len());
                         if !output_.is_empty() {
                             let st = output_.join("");
                             // println!("test  {}", st);
@@ -164,6 +163,23 @@ pub fn run() {
                             println!("{}", trimmed)
                         }
                     }
+                }
+            }
+            RedirectType::AppendStdErrToFile => {
+                let st = output_.join("");
+                let trimmed = st.trim_end_matches('\n').to_string();
+                if !trimmed.is_empty() {
+                    println!("{}", trimmed)
+                }
+                match file {
+                    Some(f) => {
+                        let trimmed = err_.trim_end_matches('\n').to_string();
+                        // println!("{trimmed}");
+                        // if !trimmed.is_empty() {
+                        builtins::write_to_file(trimmed, f, true);
+                        // }
+                    }
+                    _ => {}
                 }
             }
         }
