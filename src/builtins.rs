@@ -6,8 +6,9 @@ use std::path;
 use std::path::Path;
 use std::process;
 use std::process::Output;
+use crate::shell::RedirectType;
 
-pub fn echo_cmd(args: &Vec<String>, output_: &mut Vec<String>, redirect: &bool) {
+pub fn echo_cmd(args: &Vec<String>, output_: &mut Vec<String>) {
     // if !*redirect {
     //     println!("{}", args.join(" "));
     // }
@@ -40,7 +41,7 @@ fn tilde_cmd() {
     let _ = env::set_current_dir(home);
 }
 
-pub fn existing_command(command: &str, args: &Vec<String>, output_: &mut Vec<String>, err_: &mut String, redirect: &mut bool) {
+pub fn existing_command(command: &str, args: &Vec<String>, output_: &mut Vec<String>, err_: &mut String, redirect: &mut RedirectType) {
     // check if have > or 1> in last second index then output should be
     // let exist = write_to_file_arg_exist(args);
     if let Ok(path_var) = env::var("PATH") {

@@ -3,6 +3,12 @@ use crate::util;
 #[allow(unused_imports)]
 use std::io::{self, Write};
 
+pub enum RedirectType {
+    None,
+    StdOutToFile,
+    StdErrToFile,
+}
+
 pub fn run() {
     let stdin = io::stdin();
     loop {
@@ -12,9 +18,9 @@ pub fn run() {
         stdin.read_line(&mut input).unwrap();
         let mut output_: Vec<String> = Vec::new();
         let mut err_ = String::new();
-        let mut redirect = false;
+        // let mut redirect = false;
         let mut file: Option<String> = None;
-
+        let mut redirect: RedirectType = RedirectType::None;
         let input = input.trim();
         if input.is_empty() {
             continue;
@@ -38,7 +44,7 @@ pub fn run() {
             }
             "echo" => {
                 // builtins::echo_cmd(commandInput.get(1).map(|v| *v));
-                builtins::echo_cmd(args, &mut output_, &redirect);
+                builtins::echo_cmd(args, &mut output_);
             }
             "type" => {
                 builtins::type_cmd(args);
@@ -54,44 +60,55 @@ pub fn run() {
                 builtins::existing_command(command, args, &mut output_, &mut err_, &mut redirect);
             } // _ => {}
         }
-        match file {
-            Some(f) => {
-                // if redirect {
-                // println!("inside {}", output_.len());
-                    if !output_.is_empty() {
-                        let st = output_.join("");
-                        // println!("test  {}", st);
-                        let trimmed = st.trim_end_matches('\n').to_string();
-                        if !trimmed.is_empty() {
-                            builtins::write_to_file(trimmed, f);
-                        }
-                    }
-                // } else {
-                //     if !output_.is_empty() {
-                //         let st = output_.join("");
-                //         println!("test  {}", st);
-                //         let trimmed = st.trim_end_matches('\n').to_string();
-                //         if !trimmed.is_empty() {
-                //             println!("{}", trimmed)
-                //         }
-                //     }
-                // }
+        // match file {
+        //     Some(f) => {
+        //         // if redirect {
+        //         // println!("inside {}", output_.len());
+        //         if !output_.is_empty() {
+        //             let st = output_.join("");
+        //             // println!("test  {}", st);
+        //             let trimmed = st.trim_end_matches('\n').to_string();
+        //             if !trimmed.is_empty() {
+        //                 builtins::write_to_file(trimmed, f);
+        //             }
+        //         }
+        //     }
+        //     None => {
+        //         let st = output_.join("");
+        //         let trimmed = st.trim_end_matches('\n').to_string();
+        //         if !trimmed.is_empty() {
+        //             println!("{}", trimmed)
+        //         }
+        //     }
+        // }
+
+        match redirect {
+            RedirectType::None => {
+                let st = output_.join("");
+                let trimmed = st.trim_end_matches('\n').to_string();
+                if !trimmed.is_empty() {
+                    println!("{}", trimmed)
+                }
+                if !err_.trim_end_matches('\n').is_empty() {
+                    let trimmed = err_.trim_end_matches('\n').to_string();
+                    println!("{trimmed}")
+                }
             }
-            None => {
-                // else {
-                    let st = output_.join("");
-                    // println!("console  {}", st);
-                    let trimmed = st.trim_end_matches('\n').to_string();
+            RedirectType::StdErrToFile => match file {
+                Some(f) => {
+                    let trimmed = err_.trim_end_matches('\n').to_string();
+                    // println!("{trimmed}");
                     if !trimmed.is_empty() {
-                        println!("{}", trimmed)
+                        builtins::write_to_file(trimmed, f);
                     }
-                // }
-            }
+                }
+                _ => {}
+            },
+            RedirectType::StdOutToFile => {}
         }
-        if !err_.trim_end_matches('\n').is_empty() {
-            let trimmed = err_.trim_end_matches('\n').to_string();
-            println!("{trimmed}")
-        }
-        
+        // if !err_.trim_end_matches('\n').is_empty() {
+        //     let trimmed = err_.trim_end_matches('\n').to_string();
+        //     println!("{trimmed}")
+        // }
     }
 }

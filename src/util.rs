@@ -1,5 +1,6 @@
+use crate::shell::RedirectType;
 
-pub fn parse_command_line(input: &str, redirect: &mut bool, file:&mut Option<String>) -> Vec<String> {
+pub fn parse_command_line(input: &str, redirect: &mut RedirectType, file:&mut Option<String>) -> Vec<String> {
     let mut parts = Vec::new();
     let mut current_part = String::new();
     let mut in_single_quotes = false;
@@ -59,7 +60,14 @@ pub fn parse_command_line(input: &str, redirect: &mut bool, file:&mut Option<Str
         return parts;
     }
     if n >= 2 && (parts[n - 2] == ">" || parts[n - 2] == "1>") {
-        *redirect = true;
+        *redirect = RedirectType::StdErrToFile;
+        *file = Some(parts[n - 1].clone());
+        parts.truncate(n - 2);
+    }
+    // return parts;
+
+    if n >= 2 && parts[n - 2] == "2>" {
+        *redirect = RedirectType::StdErrToFile;
         *file = Some(parts[n - 1].clone());
         parts.truncate(n - 2);
     }
