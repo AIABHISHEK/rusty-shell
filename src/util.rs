@@ -74,14 +74,14 @@ pub fn parse_command_line(input: &str, redirect: &mut RedirectType, file:&mut Op
         return parts;
     }
 
-    if n >= 2 && parts[n - 2] == "1>>" {
+    if n >= 2 && (parts[n - 2] == ">>" || parts[n - 2] == "1>>") {
         *redirect = RedirectType::AppendStdOutToFile;
         *file = Some(parts[n - 1].clone());
         parts.truncate(n - 2);
         return parts;
     }
 
-    if n >= 1 && (parts[n - 1] == ">>" || parts[n - 1] == ">>") {
+    if n >= 1 && (parts[n - 1] == ">>" || parts[n - 1] == "1>>") {
         parts.truncate(n-1);
         // *redirect = true;
         *redirect = RedirectType::None;
