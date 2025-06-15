@@ -57,6 +57,7 @@ pub fn parse_command_line(input: &str, redirect: &mut RedirectType, file:&mut Op
     if n >= 1 && (parts[n - 1] == ">" || parts[n - 1] == "1>") {
         parts.truncate(n-1);
         // *redirect = true;
+        *redirect = RedirectType::None;
         return parts;
     }
     if n >= 2 && (parts[n - 2] == ">" || parts[n - 2] == "1>") {
