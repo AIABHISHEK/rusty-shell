@@ -22,6 +22,7 @@ impl Completer for TrieCompleter {
     ) -> rustyline::Result<(usize, Vec<Pair>)> {
         let prefix = &line[..pos];
         let completions = self.trie.starts_with(prefix);
+        // let internal_completions = 
         let pairs = completions
             .into_iter()
             .map(|cmd| Pair {

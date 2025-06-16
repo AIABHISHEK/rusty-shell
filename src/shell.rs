@@ -22,9 +22,10 @@ pub fn run() {
     for cmd in ["echo", "exit", "pwd", "cd", "type"] {
         trie.insert(cmd);
     }
-
+    for cmd in util::get_executable() {
+        trie.insert(&cmd);
+    }
     let completer = TrieCompleter { trie };
-    // let mut rl = Editor::new().unwrap();
     let mut rl = Editor::<TrieCompleter, DefaultHistory>::new().unwrap(); // allows helper setup
     rl.set_helper(Some(completer));
 

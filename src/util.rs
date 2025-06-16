@@ -1,3 +1,6 @@
+use std::env;
+use std::fs;
+
 use crate::shell::RedirectType;
 
 pub fn parse_command_line(input: &str, redirect: &mut RedirectType, file:&mut Option<String>) -> Vec<String> {
@@ -95,4 +98,46 @@ pub fn parse_command_line(input: &str, redirect: &mut RedirectType, file:&mut Op
         return parts;
     }
     return parts;
+}
+
+pub fn get_executable() -> Vec<String> {
+
+    let mut commands = Vec::new();
+    if let Ok(path_var) = env::var("PATH") {
+        for dir in env::split_paths(&path_var) {
+            if let Ok(entries) = fs::read_dir(dir) {
+                for entry in entries.flatten() {
+                    let path = entry.path();
+                    if path.is_file() {
+                        // On Unix, check for executable permission; on Windows, check for .exe, .bat, etc.
+                        #[cfg(unix)]
+                        {
+                            use std::os::unix::fs::PermissionsExt;
+                            if path.metadata().map(|m| m.permissions().mode() & 0o111 != 0).unwrap_or(false) {
+                                if let Some(stem) = path.file_stem() {
+                                    let cmd = stem.to_string_lossy().to_string();
+                                    commands.push(cmd);
+                                }
+                            }
+                        }
+                        #[cfg(windows)]
+                        {
+                            if let Some(ext) = path.extension() {
+                                if ext == "exe" || ext == "bat" || ext == "cmd" {
+                                    use std::ffi::OsStr;
+
+                                    if let Some(stem) = path.file_stem() {
+                                        let cmd = stem.to_string_lossy().to_string();
+                                        commands.push(cmd);
+                                    }
+                                    // print!("{} ,", );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return commands;
 }
