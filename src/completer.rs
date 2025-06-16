@@ -26,7 +26,7 @@ impl Completer for TrieCompleter {
             .into_iter()
             .map(|cmd| Pair {
                 display: cmd.clone(),
-                replacement: cmd,
+                replacement: format!("{} ", cmd),
             })
             .collect();
         Ok((0, pairs))

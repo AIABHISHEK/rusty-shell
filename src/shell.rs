@@ -19,7 +19,7 @@ pub enum RedirectType {
 
 pub fn run() {
     let mut trie = Trie::new();
-    for cmd in ["echo ", "exit", "pwd", "cd ", "type "] {
+    for cmd in ["echo", "exit", "pwd", "cd", "type"] {
         trie.insert(cmd);
     }
 
