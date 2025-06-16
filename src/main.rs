@@ -1,6 +1,8 @@
 mod shell;
 mod builtins;
 mod util;
+mod trie;
+mod completer;
 fn main() {
     // for argument in env::args() {
     //     println!("{argument}");
