@@ -3,7 +3,7 @@ use crate::completer::TrieCompleter;
 use crate::trie;
 use crate::trie::Trie;
 use crate::util;
-use rustyline::{error::ReadlineError, history::DefaultHistory, Editor};
+use rustyline::{history::DefaultHistory, CompletionType, Config, Editor};
 #[allow(unused_imports)]
 // use std::io::{self, Write};
 use std::io;
@@ -26,12 +26,17 @@ pub fn run() {
         trie.insert(&cmd);
     }
     let completer = TrieCompleter { trie };
-    let mut rl = Editor::<TrieCompleter, DefaultHistory>::new().unwrap(); // allows helper setup
+    let config = Config::builder()
+        .completion_type(CompletionType::List)
+         // Enables double-Tab listing
+        .build();
+    // let mut rl = Editor::with_config(config);
+    let mut rl = Editor::<TrieCompleter, DefaultHistory>::with_config(config).unwrap(); // allows helper setup
     rl.set_helper(Some(completer));
 
     let stdin = stdin();
     loop {
-        print!("$ ");
+        // print!("$ ");
         io::stdout().flush().unwrap();
         let mut input = String::new();
         let rs = rl.readline("$ ");
