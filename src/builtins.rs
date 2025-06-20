@@ -6,6 +6,8 @@ use std::path;
 use std::path::Path;
 use std::process;
 use std::process::Output;
+use std::process::Stdio;
+use std::thread::spawn;
 use crate::shell::RedirectType;
 
 pub fn echo_cmd(args: &Vec<String>, output_: &mut Vec<String>) {
@@ -44,6 +46,7 @@ fn tilde_cmd() {
 pub fn existing_command(command: &str, args: &Vec<String>, output_: &mut Vec<String>, err_: &mut String, redirect: &mut RedirectType) {
     // check if have > or 1> in last second index then output should be
     // let exist = write_to_file_arg_exist(args);
+    // println!("this is exisitng command");
     if let Ok(path_var) = env::var("PATH") {
         for dir in env::split_paths(&path_var) {
             let full_path = dir.join(command);
@@ -136,6 +139,53 @@ pub fn type_cmd(args: &Vec<String>) {
         _ => {}
     }
 }
+
+pub fn handle_pipe(input: &Vec<String>, output_: &mut Vec<String>, err_: &mut String, redirect: &mut RedirectType) {
+    let mut cmd = String::new();
+    let mut args: Vec<String> = Vec::new();
+    for (inx, val) in input.iter().enumerate() {
+        if val == "|" || inx == input.len() - 1 {
+            // let r_cmd = process::Command::new(cmd)
+            //     .stdout();
+            //     .spawn(|| {})
+            //     .expect("failed to run");
+            if inx == input.len() - 1 {
+                if cmd.is_empty() { 
+                    cmd = val.clone(); 
+                } else {
+                    args.push(val.clone());
+                }
+            }
+            // println!("this is inside pipe {}", inx as i64);
+            let cmd_clone = cmd.clone();
+            let a = cmd_clone.as_str();
+            if !output_.is_empty() {
+                args.append(output_);
+            }
+            match a {
+                "echo" => { echo_cmd(&args, output_); },
+                "type" => { type_cmd(&args); },
+                "pwd" => { pwd_cmd(output_); },
+                _ => {
+                    existing_command(a, &args, output_, err_, redirect);
+                },
+            }
+            // if !err_.is_empty() {
+            //     break;
+            // }
+            cmd.clear();
+            args.clear();
+        }
+        else {
+            if cmd.is_empty() { 
+                cmd = val.clone(); 
+            } else {
+                args.push(val.clone());
+            }
+        }
+    }
+}
+
 
 // fn write_to_file_exist(args: &Vec<String>) -> bool {
 //     let mut exist = false;

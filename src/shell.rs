@@ -1,6 +1,5 @@
 use crate::builtins;
 use crate::completer::TrieCompleter;
-use crate::trie;
 use crate::trie::Trie;
 use crate::util;
 use rustyline::{history::DefaultHistory, CompletionType, Config, Editor};
@@ -22,9 +21,11 @@ pub fn run() {
     for cmd in ["echo", "exit", "pwd", "cd", "type"] {
         trie.insert(cmd);
     }
-    for cmd in util::get_executable() {
-        trie.insert(&cmd);
-    }
+    // let existing_cmd = util::get_executable();
+    // for cmd in existing_cmd {
+    //     // let s = cmd.clone().as_str();
+    //     trie.insert(cmd.as_str());
+    // }
     let completer = TrieCompleter { trie };
     let config = Config::builder()
         .completion_type(CompletionType::List)
@@ -33,10 +34,8 @@ pub fn run() {
     // let mut rl = Editor::with_config(config);
     let mut rl = Editor::<TrieCompleter, DefaultHistory>::with_config(config).unwrap(); // allows helper setup
     rl.set_helper(Some(completer));
-
-    let stdin = stdin();
     loop {
-        // print!("$ ");
+        print!("$ ");
         io::stdout().flush().unwrap();
         let mut input = String::new();
         let rs = rl.readline("$ ");
@@ -53,12 +52,20 @@ pub fn run() {
                 if input.is_empty() {
                     continue;
                 }
-                let v = util::parse_command_line(input.as_str(), &mut redirect, &mut file);
-
-                let c = &v[0];
-                let cmd = c.as_str();
+                let mut is_pipe = false;
+                let v = util::parse_command_line(input.as_str(), &mut redirect, &mut file, &mut is_pipe);
+                // print!("this is iped or not {}", is_pipe);
+                let c = match is_pipe {
+                    true=> "|",
+                    false=> &v[0],
+                };
+                // println!("this is {}", c);
+                let cmd = c;
                 let args = &v[1..].iter().map(|s| s.clone()).collect();
                 match cmd {
+                    "|" => {
+                        builtins::handle_pipe(&v, &mut output_, &mut err_, &mut redirect);
+                    }
                     "exit" => {
                         if v.len() > 1 && v.get(1).unwrap() != "0" {
                             println!("invalid argument for exit")

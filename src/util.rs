@@ -3,7 +3,7 @@ use std::fs;
 
 use crate::shell::RedirectType;
 
-pub fn parse_command_line(input: &str, redirect: &mut RedirectType, file:&mut Option<String>) -> Vec<String> {
+pub fn parse_command_line(input: &str, redirect: &mut RedirectType, file:&mut Option<String>, is_pipe: &mut bool) -> Vec<String> {
     let mut parts = Vec::new();
     let mut current_part = String::new();
     let mut in_single_quotes = false;
@@ -36,6 +36,7 @@ pub fn parse_command_line(input: &str, redirect: &mut RedirectType, file:&mut Op
             }
             ' ' | '\t' if !in_single_quotes && !in_double_quotes => {
                 if !current_part.is_empty() {
+                    if current_part == "|" { *is_pipe = true; }
                     parts.push(current_part.clone());
                     current_part.clear();
                 }
@@ -53,6 +54,7 @@ pub fn parse_command_line(input: &str, redirect: &mut RedirectType, file:&mut Op
         }
     }
     if !current_part.is_empty() {
+        if current_part == "|" { *is_pipe = true; }
         parts.push(current_part);
     }
 
@@ -116,6 +118,7 @@ pub fn get_executable() -> Vec<String> {
                             if path.metadata().map(|m| m.permissions().mode() & 0o111 != 0).unwrap_or(false) {
                                 if let Some(stem) = path.file_stem() {
                                     let cmd = stem.to_string_lossy().to_string();
+                                    // print!("{cmd} ,");
                                     commands.push(cmd);
                                 }
                             }
