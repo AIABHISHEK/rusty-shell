@@ -160,7 +160,20 @@ pub fn handle_pipe(input: &Vec<String>, output_: &mut Vec<String>, err_: &mut St
             let cmd_clone = cmd.clone();
             let a = cmd_clone.as_str();
             if !output_.is_empty() {
-                args.append(output_);
+                // args.append(output_.iter().map(|v| {
+                //     let c = val.replace('\n', "").replace('\t', "").trim().to_string();
+                //     return c;
+                // }));
+                for val in output_.drain(..) {
+                    let cleaned = val.replace('\n', "").replace('\t', "").trim().to_string();
+                    if !cleaned.is_empty() {
+                        // print!("{} ", cleaned);
+                        let mut tp:Vec<_> = cleaned.split(" ").collect();
+                        for v in tp  {
+                            args.push(v.to_string());
+                        }
+                    }
+                }
             }
             match a {
                 "echo" => { echo_cmd(&args, output_); },
@@ -170,7 +183,7 @@ pub fn handle_pipe(input: &Vec<String>, output_: &mut Vec<String>, err_: &mut St
                     existing_command(a, &args, output_, err_, redirect);
                 },
             }
-            if !err_.is_empty() {
+            if !err_.is_empty() || inx == input.len() - 1 {
                 break;
             }
             cmd.clear();
