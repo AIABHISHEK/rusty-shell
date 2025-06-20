@@ -170,9 +170,9 @@ pub fn handle_pipe(input: &Vec<String>, output_: &mut Vec<String>, err_: &mut St
                     existing_command(a, &args, output_, err_, redirect);
                 },
             }
-            // if !err_.is_empty() {
-            //     break;
-            // }
+            if !err_.is_empty() {
+                break;
+            }
             cmd.clear();
             args.clear();
         }
