@@ -337,12 +337,9 @@ pub fn history_cmd(args: &Vec<String>, history: &mut MemHistory) {
             }
         }
         else if args[0] == "-w" {
-            // let path = Path::new(&args[1]);
             let mut content: Vec<String> = Vec::new();
             for i in 0..history.len() {
                 if let Ok(Some(entry)) = history.get(i, SearchDirection::Reverse) {
-                    // println!("    {} {}", entry.idx, entry.entry);
-                    // write to file
                     content.push(format!("{}\n", entry.entry));
                 }
             }
@@ -355,7 +352,7 @@ pub fn history_cmd(args: &Vec<String>, history: &mut MemHistory) {
 
 pub fn write_to_file(content: String, file: String, append: bool) {
     let path = Path::new(&file);
-    let mut to_write = content.trim_end_matches('\n').to_string();
+    let mut to_write = content;
 
     // If file exists and is not empty and does not end with '\n', add a newline before writing
     if path.exists() {
