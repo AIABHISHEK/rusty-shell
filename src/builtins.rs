@@ -271,7 +271,8 @@ pub fn handle_pipe(
 
                 echo_cmd(&echo_args, output_);
                 // print!("this is {}", output_.join(" "));
-                prev_builtin_output = Some(output_.join(" "));
+                // prev_builtin_output = Some(output_.join(" "));
+                prev_builtin_output = Some(format!("{}\n",output_.join(" ")));
                 if i != commands.len() - 1 {
                     // println!("{} output {}", i, commands.len());
                     // if let Some(ref so) = prev_builtin_output {
