@@ -22,11 +22,11 @@ pub fn run() {
     for cmd in ["echo", "exit", "pwd", "cd", "type"] {
         trie.insert(cmd);
     }
-    let existing_cmd = util::get_executable();
-    for cmd in existing_cmd {
-        // let s = cmd.clone().as_str();
-        trie.insert(cmd.as_str());
-    }
+    // let existing_cmd = util::get_executable();
+    // for cmd in existing_cmd {
+    //     // let s = cmd.clone().as_str();
+    //     trie.insert(cmd.as_str());
+    // }
     let completer = TrieCompleter { trie };
     let config = Config::builder()
         .completion_type(CompletionType::List)
@@ -97,7 +97,11 @@ pub fn run() {
                     }
                     "history" => {
                         let history = rl.history();
-                        for i in 0..history.len() {
+                        let ln = history.len();
+                        let cnt_str = args.get(0).map(|s| s.as_str()).unwrap_or("");
+                        let cnt = usize::from_str_radix(cnt_str, 10).unwrap_or(ln);
+                        // println!("{cnt}");
+                        for i in ln-cnt..history.len() {
                             if let Ok(Some(entry)) = history.get(i, SearchDirection::Reverse) {
                                 println!("    {} {}", entry.idx, entry.entry);
                             }
