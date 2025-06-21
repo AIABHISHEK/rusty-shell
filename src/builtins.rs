@@ -1,14 +1,16 @@
+use crate::shell::RedirectType;
 use std::env;
 use std::fs;
 use std::fs::read_to_string;
+use std::io::stdout;
 use std::io::Write;
 use std::path;
 use std::path::Path;
 use std::process;
+use std::process::Child;
 use std::process::Output;
 use std::process::Stdio;
 use std::thread::spawn;
-use crate::shell::RedirectType;
 
 pub fn echo_cmd(args: &Vec<String>, output_: &mut Vec<String>) {
     // if !*redirect {
@@ -43,7 +45,13 @@ fn tilde_cmd() {
     let _ = env::set_current_dir(home);
 }
 
-pub fn existing_command(command: &str, args: &Vec<String>, output_: &mut Vec<String>, err_: &mut String, redirect: &mut RedirectType) {
+pub fn existing_command(
+    command: &str,
+    args: &Vec<String>,
+    output_: &mut Vec<String>,
+    err_: &mut String,
+    redirect: &mut RedirectType,
+) {
     // check if have > or 1> in last second index then output should be
     // let exist = write_to_file_arg_exist(args);
     // println!("this is exisitng command");
@@ -66,28 +74,28 @@ pub fn existing_command(command: &str, args: &Vec<String>, output_: &mut Vec<Str
                 // let err = &output.stderr;
                 // stdout().write_all(&output.stdout);
                 // if exist {
-                
-                    // if output.status.success() {
-                    let out = &output.stdout;
 
-                    let so = String::from_utf8_lossy(out.as_slice());
-                    let so = so.to_string();
-                    // println!("so {}", so);
-                    // if output_.len() > 0 {
-                        // output_.push(format!("\n{}", so));
-                    // }
-                    // else {
-                        output_.push(so);
-                    // }
-                    // *redirect = true;
+                // if output.status.success() {
+                let out = &output.stdout;
+
+                let so = String::from_utf8_lossy(out.as_slice());
+                let so = so.to_string();
+                // println!("so {}", so);
+                // if output_.len() > 0 {
+                // output_.push(format!("\n{}", so));
                 // }
                 // else {
-                    let se = String::from_utf8_lossy(&output.stderr.as_slice());
-                    let se = se.to_string();
-                    
-                    // println!("{}", s);
-                    *err_ = se;
-                    // print!("{}")
+                output_.push(so);
+                // }
+                // *redirect = true;
+                // }
+                // else {
+                let se = String::from_utf8_lossy(&output.stderr.as_slice());
+                let se = se.to_string();
+
+                // println!("{}", s);
+                *err_ = se;
+                // print!("{}")
                 // }
                 //     let file = args[args.len() - 1].clone();
                 //     write_to_file(s, file);
@@ -140,65 +148,63 @@ pub fn type_cmd(args: &Vec<String>) {
     }
 }
 
-pub fn handle_pipe(input: &Vec<String>, output_: &mut Vec<String>, err_: &mut String, redirect: &mut RedirectType) {
+pub fn handle_pipe(
+    input: &Vec<String>,
+    output_: &mut Vec<String>,
+    err_: &mut String,
+    redirect: &mut RedirectType,
+) {
     let mut cmd = String::new();
     let mut args: Vec<String> = Vec::new();
-    for (inx, val) in input.iter().enumerate() {
-        if val == "|" || inx == input.len() - 1 {
-            // let r_cmd = process::Command::new(cmd)
-            //     .stdout();
-            //     .spawn(|| {})
-            //     .expect("failed to run");
-            if inx == input.len() - 1 {
-                if cmd.is_empty() { 
-                    cmd = val.clone(); 
-                } else {
-                    args.push(val.clone());
-                }
+    let mut commands = Vec::new();
+    let mut current = Vec::new();
+    for token in input {
+        if token == "|" {
+            if !current.is_empty() {
+                commands.push(current);
+                current = Vec::new();
             }
-            // println!("this is inside pipe {}", inx as i64);
-            let cmd_clone = cmd.clone();
-            let a = cmd_clone.as_str();
-            if !output_.is_empty() {
-                // args.append(output_.iter().map(|v| {
-                //     let c = val.replace('\n', "").replace('\t', "").trim().to_string();
-                //     return c;
-                // }));
-                for val in output_.drain(..) {
-                    let cleaned = val.replace('\n', "").replace('\t', "").trim().to_string();
-                    if !cleaned.is_empty() {
-                        // print!("{} ", cleaned);
-                        let mut tp:Vec<_> = cleaned.split(" ").collect();
-                        for v in tp  {
-                            args.push(v.to_string());
-                        }
-                    }
-                }
-            }
-            match a {
-                "echo" => { echo_cmd(&args, output_); },
-                "type" => { type_cmd(&args); },
-                "pwd" => { pwd_cmd(output_); },
-                _ => {
-                    existing_command(a, &args, output_, err_, redirect);
-                },
-            }
-            if !err_.is_empty() || inx == input.len() - 1 {
-                break;
-            }
-            cmd.clear();
-            args.clear();
+        } else {
+            current.push(token.clone());
         }
-        else {
-            if cmd.is_empty() { 
-                cmd = val.clone(); 
-            } else {
-                args.push(val.clone());
-            }
+    }
+    if !current.is_empty() {
+        commands.push(current);
+    }
+    let mut processes: Vec<Child> = Vec::new();
+    let mut prev_stdout = None;
+
+    for (i, cmd) in commands.iter().enumerate() {
+        let mut command = process::Command::new(&cmd[0]);
+        if cmd.len() > 1 {
+            command.args(&cmd[1..]);
+        }
+
+        // Set stdin for this command
+        if let Some(stdin) = prev_stdout.take() {
+            command.stdin(stdin);
+        }
+
+        // For all but the last command, pipe stdout
+        if i < commands.len() - 1 {
+            command.stdout(Stdio::piped());
+        }
+
+        let mut child = command.spawn().expect("failed to spawn process");
+
+        // Save the stdout to pass as stdin to the next command
+        if i < commands.len() - 1 {
+            prev_stdout = Some(child.stdout.take().expect("failed to get stdout"));
+            processes.push(child);
+        } else {
+            // last command
+            let output = &child.wait_with_output().expect("failed to wait on child");
+            let so = String::from_utf8_lossy(&output.stdout);
+            let so = so.to_string();
+            output_.push(so);
         }
     }
 }
-
 
 // fn write_to_file_exist(args: &Vec<String>) -> bool {
 //     let mut exist = false;
@@ -231,7 +237,6 @@ pub fn handle_pipe(input: &Vec<String>, output_: &mut Vec<String>, err_: &mut St
 // }
 
 pub fn write_to_file(content: String, file: String, append: bool) {
-
     let path = Path::new(&file);
     let mut to_write = content.trim_end_matches('\n').to_string();
 
@@ -245,9 +250,9 @@ pub fn write_to_file(content: String, file: String, append: bool) {
     }
 
     match fs::OpenOptions::new()
-        .create(true) 
+        .create(true)
         .write(true)
-        .truncate(!append) 
+        .truncate(!append)
         .append(append)
         .open(&file)
     {
