@@ -1,9 +1,14 @@
+
+use rustyline::history::{self, History, MemHistory, SearchDirection};
 use crate::shell::RedirectType;
 use std::env;
 use std::env::args;
 use std::fs;
 use std::fs::read_to_string;
+use std::fs::File;
 use std::io::stdout;
+use std::io::BufRead;
+use std::io::BufReader;
 use std::io::Read;
 use std::io::Write;
 use std::path;
@@ -303,35 +308,35 @@ pub fn handle_pipe(
     }
 }
 
-// fn write_to_file_exist(args: &Vec<String>) -> bool {
-//     let mut exist = false;
-//     let idx = args.len() - 2;
-//     let val = &args[idx];
-//     // if args.len() < 2 as usize {
-//     //     return exist;
-//     // }
-//     if *val == ">".to_string() || *val == "1>".to_string() {
-//         if idx != (args.len() - 2) {
-//             print!("Invalid argument after {val}")
-//         } else {
-//             exist = true;
-//         }
-//     }
-//     return exist;
-// }
-
-// fn write_to_std_output(args: &Vec<String>) -> bool {
-//     let mut exist = false;
-//     let idx = args.len() - 1;
-//     let val = &args[idx];
-//     // if args.len() < 2 as usize {
-//     //     return exist;
-//     // }
-//     if *val == ">".to_string() || *val == "1>".to_string() {
-//         exist = true;
-//     }
-//     return exist;
-// }
+pub fn history_cmd(args: &Vec<String>, history: &mut MemHistory) {
+    if args.len() <= 1  {
+        let ln = history.len();
+        let cnt_str = args.get(0).map(|s| s.as_str()).unwrap_or("");
+        let cnt = usize::from_str_radix(cnt_str, 10).unwrap_or(ln);
+        // println!("{cnt}");
+        for i in ln - cnt..history.len() {
+            if let Ok(Some(entry)) = history.get(i, SearchDirection::Reverse) {
+                println!("    {} {}", entry.idx, entry.entry);
+            }
+        }
+    } else if args.len() == 2 &&  args[0] == "-r" {
+        let path = Path::new(&args[1]);
+        match File::open(path) {
+            Ok(r)=> {
+                let reader = BufReader::new(r);
+                for line in reader.lines() {
+                    // let line = line;
+                    if let Ok(l) = line {
+                        history.add( l.clone().as_str());
+                    }
+                }
+            },
+            Err(e) => {},
+        }
+    } else {
+        println!("invalid args");
+    }
+}
 
 pub fn write_to_file(content: String, file: String, append: bool) {
     let path = Path::new(&file);

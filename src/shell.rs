@@ -2,7 +2,7 @@ use crate::builtins;
 use crate::completer::TrieCompleter;
 use crate::trie::Trie;
 use crate::util;
-use rustyline::history::{History, MemHistory, SearchDirection};
+use rustyline::history::{self, History, MemHistory, SearchDirection};
 use rustyline::{history::DefaultHistory, CompletionType, Config, Editor};
 #[allow(unused_imports)]
 // use std::io::{self, Write};
@@ -96,16 +96,8 @@ pub fn run() {
                         builtins::cd_cmd(args, &mut output_);
                     }
                     "history" => {
-                        let history = rl.history();
-                        let ln = history.len();
-                        let cnt_str = args.get(0).map(|s| s.as_str()).unwrap_or("");
-                        let cnt = usize::from_str_radix(cnt_str, 10).unwrap_or(ln);
-                        // println!("{cnt}");
-                        for i in ln-cnt..history.len() {
-                            if let Ok(Some(entry)) = history.get(i, SearchDirection::Reverse) {
-                                println!("    {} {}", entry.idx, entry.entry);
-                            }
-                        }
+                        let history = rl.history_mut();
+                        builtins::history_cmd(args, history);
                     }
                     command => {
                         // println!("{}: command not found", cmd);
