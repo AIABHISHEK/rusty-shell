@@ -2,6 +2,7 @@ use crate::builtins;
 use crate::completer::TrieCompleter;
 use crate::trie::Trie;
 use crate::util;
+use rustyline::history::{History, MemHistory, SearchDirection};
 use rustyline::{history::DefaultHistory, CompletionType, Config, Editor};
 #[allow(unused_imports)]
 // use std::io::{self, Write};
@@ -29,10 +30,12 @@ pub fn run() {
     let completer = TrieCompleter { trie };
     let config = Config::builder()
         .completion_type(CompletionType::List)
-         // Enables double-Tab listing
+        // Enables double-Tab listing
+        // .max_history_size(5)
         .build();
+    let mut mh = MemHistory::new();
     // let mut rl = Editor::with_config(config);
-    let mut rl = Editor::<TrieCompleter, DefaultHistory>::with_config(config).unwrap(); // allows helper setup
+    let mut rl = Editor::<TrieCompleter, MemHistory>::with_history(config, mh).unwrap(); // allows helper setup
     rl.set_helper(Some(completer));
     loop {
         print!("$ ");
@@ -52,12 +55,18 @@ pub fn run() {
                 if input.is_empty() {
                     continue;
                 }
+                let _ = rl.add_history_entry(&input);
                 let mut is_pipe = false;
-                let v = util::parse_command_line(input.as_str(), &mut redirect, &mut file, &mut is_pipe);
+                let v = util::parse_command_line(
+                    input.as_str(),
+                    &mut redirect,
+                    &mut file,
+                    &mut is_pipe,
+                );
                 // print!("this is iped or not {}", is_pipe);
                 let c = match is_pipe {
-                    true=> "|",
-                    false=> &v[0],
+                    true => "|",
+                    false => &v[0],
                 };
                 // println!("this is {}", c);
                 let cmd = c;
@@ -85,6 +94,14 @@ pub fn run() {
                     }
                     "cd" => {
                         builtins::cd_cmd(args, &mut output_);
+                    }
+                    "history" => {
+                        let history = rl.history();
+                        for i in 0..history.len() {
+                            if let Ok(Some(entry)) = history.get(i, SearchDirection::Reverse) {
+                                println!("    {} {}", entry.idx, entry.entry);
+                            }
+                        }
                     }
                     command => {
                         // println!("{}: command not found", cmd);

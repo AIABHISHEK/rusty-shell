@@ -2,6 +2,7 @@
 use rustyline::completion::{Completer, Pair};
 use rustyline::highlight::Highlighter;
 use rustyline::hint::Hinter;
+use rustyline::history::History;
 use rustyline::validate::Validator;
 use rustyline::{Context, Helper};
 use crate::trie::Trie;
@@ -39,5 +40,6 @@ impl Helper for TrieCompleter {}
 impl Hinter for TrieCompleter {
     type Hint = String;
 }
+
 impl Highlighter for TrieCompleter {}
 impl Validator for TrieCompleter {}
