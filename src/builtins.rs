@@ -1,8 +1,10 @@
 use crate::shell::RedirectType;
 use std::env;
+use std::env::args;
 use std::fs;
 use std::fs::read_to_string;
 use std::io::stdout;
+use std::io::Read;
 use std::io::Write;
 use std::path;
 use std::path::Path;
@@ -148,14 +150,45 @@ pub fn type_cmd(args: &Vec<String>) {
     }
 }
 
+fn type_exist(text: &String) -> String {
+    // print!("this is {text}");
+    let v: Vec<&str> = text.split_ascii_whitespace().collect();
+    // if v.len() > 1 {
+    //     format!("Too  many arguments");
+    // } else {
+    match text.as_str() {
+        "exit" | "echo" | "type" | "pwd" | "cd" => {
+            let a = format!("{} is a shell builtin", text);
+            // return;
+            return a;
+        }
+        _ => {}
+    }
+    if let Ok(path_var) = env::var("PATH") {
+        for dir in path_var.split(':') {
+            let full_path = path::Path::new(dir).join(text);
+            // println!("this is full path: {:?}", full_path);
+            // println!("this is: {dir}");
+            if full_path.exists() && full_path.is_file() {
+                // execute command
+
+                let a = format!("{} is {}", text, full_path.display());
+
+                return a;
+            }
+        }
+    }
+    let b = format!("{}: not found", text);
+    return b;
+    // }
+}
+
 pub fn handle_pipe(
     input: &Vec<String>,
     output_: &mut Vec<String>,
     err_: &mut String,
     redirect: &mut RedirectType,
 ) {
-    let mut cmd = String::new();
-    let mut args: Vec<String> = Vec::new();
     let mut commands = Vec::new();
     let mut current = Vec::new();
     for token in input {
@@ -172,36 +205,125 @@ pub fn handle_pipe(
         commands.push(current);
     }
     let mut processes: Vec<Child> = Vec::new();
-    let mut prev_stdout = None;
+    let mut prev_stdout: Option<process::ChildStdout> = None;
+    let mut prev_builtin_output: Option<String> = None;
 
     for (i, cmd) in commands.iter().enumerate() {
-        let mut command = process::Command::new(&cmd[0]);
-        if cmd.len() > 1 {
-            command.args(&cmd[1..]);
-        }
+        //
+        // println!("inside ");
+        match cmd[0].as_str() {
+            "type" => {
+                let mut type_args: Vec<String> = Vec::new();
 
-        // Set stdin for this command
-        if let Some(stdin) = prev_stdout.take() {
-            command.stdin(stdin);
-        }
+                if cmd.len() > 1 {
+                    type_args.push(cmd[1].clone());
+                }
+                // command.args(&cmd[1..]);
+                let mut buf = String::new();
+                if let Some(mut stdin) = prev_stdout.take() {
+                    // command.stdin(stdin);
+                    stdin
+                        .read_to_string(&mut buf)
+                        .expect("failed to read from stdin");
+                }
+                if !buf.trim().is_empty() {
+                    type_args.push(buf.trim().to_string());
+                } else if let Some(out) = prev_builtin_output {
+                    type_args.push(out.clone());
+                    // prev_builtin_output = None;
+                }
+                // }
+                // if type_args.len() >=1 {
+                let b = type_exist(&type_args[0]);
+                // println!("this is type output {}", b);
+                prev_builtin_output = Some(b);
+                // }
+                // println!("{} out length of  {}", i, commands.len());
+                if i == commands.len() - 1 {
+                    // println!("using output {}", so);
+                    if let Some(ref so) = prev_builtin_output {
+                        // println!("{} length of  {} is , {}", i, commands.len(), so);
+                        output_.clear();
+                        output_.push(so.clone());
+                    }
+                }
+            }
+            "echo" => {
+                let mut echo_args: Vec<String> = Vec::new();
+                let mut buf = String::new();
+                if cmd.len() > 1 {
+                    // command.args(&cmd[1..]);
+                    echo_args.append(&mut cmd[1..].to_vec());
+                }
+                if let Some(mut stdin) = prev_stdout.take() {
+                    // command.stdin(stdin);
+                    stdin
+                        .read_to_string(&mut buf)
+                        .expect("failed to read from stdin");
+                    if !buf.trim().is_empty() {
+                        echo_args.push(buf);
+                    }
+                }
+                if let Some(out) = prev_builtin_output {
+                    echo_args.push(out.clone());
+                    // prev_builtin_output = None;
+                }
 
-        // For all but the last command, pipe stdout
-        if i < commands.len() - 1 {
-            command.stdout(Stdio::piped());
-        }
+                echo_cmd(&echo_args, output_);
+                // print!("this is {}", output_.join(" "));
+                prev_builtin_output = Some(output_.join(" "));
+                if i != commands.len() - 1 {
+                    // println!("{} output {}", i, commands.len());
+                    // if let Some(ref so) = prev_builtin_output {
+                        output_.clear();
+                        // output_.push(so.clone());
+                    // }
+                }
+            }
+            (som) => {
+                let mut command = process::Command::new(&cmd[0]);
+                if cmd.len() > 1 {
+                    command.args(&cmd[1..]);
+                }
 
-        let mut child = command.spawn().expect("failed to spawn process");
+                // Set stdin for this command
+                // prev cmd out will be std out fro current
+                if let Some(ref output) = prev_builtin_output {
+                    command.stdin(Stdio::piped());
+                    // prev_builtin_output = None;
+                } else if let Some(stdin) = prev_stdout.take() {
+                    command.stdin(stdin);
+                }
 
-        // Save the stdout to pass as stdin to the next command
-        if i < commands.len() - 1 {
-            prev_stdout = Some(child.stdout.take().expect("failed to get stdout"));
-            processes.push(child);
-        } else {
-            // last command
-            let output = &child.wait_with_output().expect("failed to wait on child");
-            let so = String::from_utf8_lossy(&output.stdout);
-            let so = so.to_string();
-            output_.push(so);
+                // For all but the last command, pipe stdout
+                if i < commands.len() - 1 {
+                    command.stdout(Stdio::piped());
+                }
+
+                let mut child = command.spawn().expect("failed to spawn process");
+                if let Some(output) = prev_builtin_output.take() {
+                    if let Some(mut stdin) = child.stdin.take() {
+                        stdin.write_all(output.as_bytes()).unwrap();
+                    }
+                }
+                prev_builtin_output = None;
+                // Save the stdout to pass as stdin to the next command
+                if i < commands.len() - 1 {
+                    prev_stdout = Some(child.stdout.take().expect("failed to get stdout"));
+                    processes.push(child);
+                } else {
+                    // last command
+                    // if let Some(ref so) = prev_builtin_output {
+                    //     println!("using output {}", so);
+                    //     output_.push(so.clone());
+                    // } else {
+                    let output = &child.wait_with_output().expect("failed to wait on child");
+                    let so = String::from_utf8_lossy(&output.stdout);
+                    let so = so.to_string();
+                    output_.push(so);
+                    // }
+                }
+            }
         }
     }
 }
