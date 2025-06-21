@@ -319,19 +319,34 @@ pub fn history_cmd(args: &Vec<String>, history: &mut MemHistory) {
                 println!("    {} {}", entry.idx, entry.entry);
             }
         }
-    } else if args.len() == 2 &&  args[0] == "-r" {
-        let path = Path::new(&args[1]);
-        match File::open(path) {
-            Ok(r)=> {
-                let reader = BufReader::new(r);
-                for line in reader.lines() {
-                    // let line = line;
-                    if let Ok(l) = line {
-                        history.add( l.clone().as_str());
+    } else if args.len() == 2 {
+        if args[0] == "-r" {
+
+            let path = Path::new(&args[1]);
+            match File::open(path) {
+                Ok(r)=> {
+                    let reader = BufReader::new(r);
+                    for line in reader.lines() {
+                        // let line = line;
+                        if let Ok(l) = line {
+                            history.add( l.clone().as_str());
+                        }
                     }
+                },
+                Err(e) => {},
+            }
+        }
+        else if args[0] == "-w" {
+            // let path = Path::new(&args[1]);
+            let mut content: Vec<String> = Vec::new();
+            for i in 0..history.len() {
+                if let Ok(Some(entry)) = history.get(i, SearchDirection::Reverse) {
+                    // println!("    {} {}", entry.idx, entry.entry);
+                    // write to file
+                    content.push(format!("{}\n", entry.entry));
                 }
-            },
-            Err(e) => {},
+            }
+            write_to_file(content.join(""), args[1].clone(), true);
         }
     } else {
         println!("invalid args");
