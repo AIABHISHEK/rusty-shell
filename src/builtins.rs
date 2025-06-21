@@ -124,7 +124,7 @@ pub fn type_cmd(args: &Vec<String>) {
                 println!("Too  many arguments");
             } else {
                 match v[0] {
-                    "exit" | "echo" | "type" | "pwd" | "cd" => {
+                    "exit" | "echo" | "type" | "pwd" | "cd" | "history" => {
                         println!("{} is a shell builtin", v[0]);
                         return;
                     }
@@ -151,11 +151,6 @@ pub fn type_cmd(args: &Vec<String>) {
 }
 
 fn type_exist(text: &String) -> String {
-    // print!("this is {text}");
-    let v: Vec<&str> = text.split_ascii_whitespace().collect();
-    // if v.len() > 1 {
-    //     format!("Too  many arguments");
-    // } else {
     match text.as_str() {
         "exit" | "echo" | "type" | "pwd" | "cd" => {
             let a = format!("{} is a shell builtin", text);
@@ -167,8 +162,6 @@ fn type_exist(text: &String) -> String {
     if let Ok(path_var) = env::var("PATH") {
         for dir in path_var.split(':') {
             let full_path = path::Path::new(dir).join(text);
-            // println!("this is full path: {:?}", full_path);
-            // println!("this is: {dir}");
             if full_path.exists() && full_path.is_file() {
                 // execute command
 
@@ -209,8 +202,6 @@ pub fn handle_pipe(
     let mut prev_builtin_output: Option<String> = None;
 
     for (i, cmd) in commands.iter().enumerate() {
-        //
-        // println!("inside ");
         match cmd[0].as_str() {
             "type" => {
                 let mut type_args: Vec<String> = Vec::new();
@@ -218,7 +209,6 @@ pub fn handle_pipe(
                 if cmd.len() > 1 {
                     type_args.push(cmd[1].clone());
                 }
-                // command.args(&cmd[1..]);
                 let mut buf = String::new();
                 if let Some(mut stdin) = prev_stdout.take() {
                     // command.stdin(stdin);
@@ -230,19 +220,12 @@ pub fn handle_pipe(
                     type_args.push(buf.trim().to_string());
                 } else if let Some(out) = prev_builtin_output {
                     type_args.push(out.clone());
-                    // prev_builtin_output = None;
                 }
-                // }
-                // if type_args.len() >=1 {
                 let b = type_exist(&type_args[0]);
-                // println!("this is type output {}", b);
                 prev_builtin_output = Some(b);
-                // }
-                // println!("{} out length of  {}", i, commands.len());
                 if i == commands.len() - 1 {
                     // println!("using output {}", so);
                     if let Some(ref so) = prev_builtin_output {
-                        // println!("{} length of  {} is , {}", i, commands.len(), so);
                         output_.clear();
                         output_.push(so.clone());
                     }
@@ -252,11 +235,9 @@ pub fn handle_pipe(
                 let mut echo_args: Vec<String> = Vec::new();
                 let mut buf = String::new();
                 if cmd.len() > 1 {
-                    // command.args(&cmd[1..]);
                     echo_args.append(&mut cmd[1..].to_vec());
                 }
                 if let Some(mut stdin) = prev_stdout.take() {
-                    // command.stdin(stdin);
                     stdin
                         .read_to_string(&mut buf)
                         .expect("failed to read from stdin");
@@ -266,19 +247,12 @@ pub fn handle_pipe(
                 }
                 if let Some(out) = prev_builtin_output {
                     echo_args.push(out.clone());
-                    // prev_builtin_output = None;
                 }
 
                 echo_cmd(&echo_args, output_);
-                // print!("this is {}", output_.join(" "));
-                // prev_builtin_output = Some(output_.join(" "));
                 prev_builtin_output = Some(format!("{}\n",output_.join(" ")));
                 if i != commands.len() - 1 {
-                    // println!("{} output {}", i, commands.len());
-                    // if let Some(ref so) = prev_builtin_output {
                         output_.clear();
-                        // output_.push(so.clone());
-                    // }
                 }
             }
             (som) => {
