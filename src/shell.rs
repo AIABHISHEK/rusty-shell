@@ -22,11 +22,11 @@ pub fn run() {
     for cmd in ["echo", "exit", "pwd", "cd", "type"] {
         trie.insert(cmd);
     }
-    // let existing_cmd = util::get_executable();
-    // for cmd in existing_cmd {
-    //     // let s = cmd.clone().as_str();
-    //     trie.insert(cmd.as_str());
-    // }
+    let existing_cmd = util::get_executable();
+    for cmd in existing_cmd {
+        // let s = cmd.clone().as_str();
+        trie.insert(cmd.as_str());
+    }
     let completer = TrieCompleter { trie };
     let config = Config::builder()
         .completion_type(CompletionType::List)
